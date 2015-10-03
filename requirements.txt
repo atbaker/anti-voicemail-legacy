@@ -1,0 +1,12 @@
+# Requirements for anti-voicemail
+
+# Flask
+Flask==0.10.1
+Flask-Mail==0.9.1
+Flask-Script==2.0.5
+
+# Third party libraries
+twilio==4.6.0
+
+# Testing
+coverage==4.0
