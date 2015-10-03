@@ -29,19 +29,21 @@ class Voicemail(object):
 
     def send_notification(self):
         """Notify our user that they have a new voicemail"""
-        # For now, WUPHF it
-        send_email(voicemail=self)
+        # Send a notification for each method that's configured
+        if current_app.config['SMS_NOTIFICATIONS']:
+            self.send_sms_notification()
 
-        self.send_sms_notification()
-
+        if current_app.config['EMAIL_NOTIFICATIONS']:
+            send_email(voicemail=self)
 
     def send_sms_notification(self):
         """Send a SMS about a new voicemail"""
 
         body = render_template('new_voicemail.txt', voicemail=self)
 
+        # Send the text message
         client.messages.create(
-            body=body,  # Message body, if any
-            to='+17036230231',
-            from_='+12027653512',
+            body=body,
+            to=current_app.config['PHONE_NUMBER'],
+            from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
