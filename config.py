@@ -6,6 +6,10 @@ class Config:
     # User config values
     TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
 
+    # Twilio credentials
+    TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+    TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+
     # Flask-Mail
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587

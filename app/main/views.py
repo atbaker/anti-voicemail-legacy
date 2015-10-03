@@ -6,7 +6,6 @@ import arrow
 
 from . import main
 from ..models import Voicemail
-from ..email import send_email
 
 
 @main.route('/')
@@ -51,7 +50,7 @@ def send_notification():
                           request.form['RecordingUrl'],
                           request.args['timestamp'])
 
-    send_email(voicemail=voicemail)
+    voicemail.send_notification()
 
     # Be a nice web server and tell Twilio we're all done
     return ('', 204)
