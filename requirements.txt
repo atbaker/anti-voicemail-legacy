@@ -7,6 +7,7 @@ Flask-Script==2.0.5
 
 # Third party libraries
 arrow==0.6.0
+phonenumbers==7.0.11
 twilio==4.6.0
 
 # Testing

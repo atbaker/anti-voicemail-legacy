@@ -10,11 +10,12 @@ def send_email(voicemail):
     app = current_app._get_current_object()
 
     # Prepare the email message
-    subject = 'New voicemail from {0} at {1}'.format(voicemail.from_number, voicemail.get_local_time())
+    subject = 'New voicemail from {0} at {1}'.format(
+        voicemail.get_national_format(), voicemail.get_local_time())
 
     message = Message(subject,
-                  sender=app.config['MAIL_SENDER'],
-                  recipients=[app.config['MAIL_USERNAME']])
+                      sender=app.config['MAIL_SENDER'],
+                      recipients=[app.config['MAIL_USERNAME']])
     message.body = render_template('mail/new_voicemail.txt', voicemail=voicemail)
     message.html = render_template('mail/new_voicemail.html', voicemail=voicemail)
 
