@@ -1,20 +1,24 @@
-from threading import Thread
 from flask import current_app, render_template
 from flask.ext.mail import Message
 from . import mail
 
 
-def send_async_email(app, msg):
-    with app.app_context():
-        mail.send(msg)
-
-
-def send_email(to, subject, template, **kwargs):
+# def send_email(to, subject, template, **kwargs):
+def send_email(voicemail):
+    """Send an email about a new voicemail"""
+    # Get the current app
     app = current_app._get_current_object()
-    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
-                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
-    msg.body = render_template(template + '.txt', **kwargs)
-    msg.html = render_template(template + '.html', **kwargs)
-    thr = Thread(target=send_async_email, args=[app, msg])
-    thr.start()
-    return thr
+
+    # Prepare the email message
+    subject = 'New voicemail from {0} at {1}'.format(voicemail.from_number, voicemail.get_local_time())
+
+    message = Message(subject,
+                  sender=app.config['MAIL_SENDER'],
+                  recipients=[app.config['MAIL_USERNAME']])
+    message.body = render_template('mail/new_voicemail.txt', voicemail=voicemail)
+    message.html = render_template('mail/new_voicemail.html', voicemail=voicemail)
+
+    # Send it
+    mail.send(message)
+
+    return

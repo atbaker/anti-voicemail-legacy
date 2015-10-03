@@ -1,7 +1,12 @@
-from flask import url_for, request
+from flask import url_for, render_template, request
+from flask_mail import Message
 from twilio import twiml
 
+import arrow
+
 from . import main
+from ..models import Voicemail
+from ..email import send_email
 
 
 @main.route('/')
@@ -18,8 +23,9 @@ def record_voicemail():
               message after the beep.')
 
     # Record and transcribe their message
+    now = arrow.utcnow()
     resp.record(action=url_for('main.hang_up'), transcribe=True,
-                transcribeCallback=url_for('main.send_notification'))
+                transcribeCallback=url_for('main.send_notification', timestamp=now.timestamp))
 
     return str(resp)
 
@@ -38,5 +44,14 @@ def hang_up():
 
 @main.route('/send-notification', methods=['POST'])
 def send_notification():
-    """Receives a transcribed voicemail from Twilio and sends a notification"""
-    import pdb; pdb.set_trace()
+    """Receives a transcribed voicemail from Twilio and sends an email"""
+    # Create a new Voicemail from the POST data
+    voicemail = Voicemail(request.form['From'],
+                          request.form.get('TranscriptionText', '(transcription failed)'),
+                          request.form['RecordingUrl'],
+                          request.args['timestamp'])
+
+    send_email(voicemail=voicemail)
+
+    # Be a nice web server and tell Twilio we're all done
+    return ('', 204)

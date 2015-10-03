@@ -1,0 +1,7 @@
+New voicemail from {{ voicemail.from_number }} at {{ voicemail.get_local_time() }}:
+
+Transcription:
+{{ voicemail.transcription }}
+
+Recording:
+{{ voicemail.recording_url }}
