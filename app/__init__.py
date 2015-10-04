@@ -1,7 +1,9 @@
 from flask import Flask
+from flask.ext.bootstrap import Bootstrap
 from flask.ext.mail import Mail
 from config import config
 
+bootstrap = Bootstrap()
 mail = Mail()
 
 
@@ -10,6 +12,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
+    bootstrap.init_app(app)
     mail.init_app(app)
 
     from .main import main as main_blueprint

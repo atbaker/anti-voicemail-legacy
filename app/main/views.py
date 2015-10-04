@@ -6,10 +6,12 @@ import arrow
 
 from . import main
 from ..models import Voicemail
+from ..utils import get_twilio_rest_client
 
 
 @main.route('/')
 def index():
+    import pdb; pdb.set_trace()
     return 'foo'
 
 @main.route('/voicemail', methods=['POST'])
@@ -47,10 +49,21 @@ def send_notification():
     # Create a new Voicemail from the POST data
     voicemail = Voicemail(request.form['From'],
                           request.form.get('TranscriptionText', '(transcription failed)'),
-                          request.form['RecordingUrl'],
+                          request.form['RecordingSid'],
                           request.args['timestamp'])
 
     voicemail.send_notification()
 
     # Be a nice web server and tell Twilio we're all done
     return ('', 204)
+
+@main.route('/recording/<recording_sid>')
+def view_recording(recording_sid):
+    """A small web page for listening to a recording"""
+    # Retrieve the recording metadata from Twilio
+    client = get_twilio_rest_client()
+    recording = client.recordings.get(recording_sid)
+
+    mp3_url = recording.formats['mp3']
+
+    return render_template('recording.html', recording_url=mp3_url)

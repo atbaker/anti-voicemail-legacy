@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Voicemail from {{ voicemail.get_national_format() }}</title>
+    <title>Voicemail from {{ voicemail.get_national_format() }} at {{ voicemail.get_local_time() }}</title>
   </head>
   <body>
     <h1>Voicemail from {{ voicemail.get_national_format() }} at {{ voicemail.get_local_time() }}</h1>
@@ -13,6 +13,6 @@
     <h2>Transcription</h2>
     <p>{{ voicemail.transcription }}</p>
 
-    <a href="{{ voicemail.recording_url }}"><strong>Listen to this voicemail</strong></a>
+    <a href="{{ url_for('main.view_recording', recording_sid=voicemail.recording_sid, _external=True) }}"><strong>Listen to this voicemail</strong></a>
   </body>
 </html>

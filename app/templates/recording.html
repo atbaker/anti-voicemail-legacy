@@ -1,0 +1,8 @@
+{% extends "bootstrap/base.html" %}
+{# {% block title %}Voicemail from {{ voicemail.get_national_format() }} at {{ voicemail.get_local_time() }}{% endblock %} #}
+
+{% block content %}
+  <div class="text-center">
+    <audio src="{{ recording_url }}" preload="auto" controls></audio>
+  </div>
+{% endblock %}

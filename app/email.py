@@ -16,8 +16,8 @@ def send_email(voicemail):
     message = Message(subject,
                       sender=app.config['MAIL_SENDER'],
                       recipients=[app.config['MAIL_USERNAME']])
-    message.body = render_template('new_voicemail.txt', voicemail=voicemail)
-    message.html = render_template('new_voicemail.html', voicemail=voicemail)
+    message.body = render_template('notifications/new_voicemail.txt', voicemail=voicemail)
+    message.html = render_template('notifications/new_voicemail.html', voicemail=voicemail)
 
     # Send it
     mail.send(message)

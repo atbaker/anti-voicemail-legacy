@@ -1,20 +1,19 @@
 from flask import current_app, render_template
-from twilio.rest import TwilioRestClient
 
 import arrow
 import phonenumbers
 
 from .email import send_email
+from .utils import get_twilio_rest_client
 
-client = TwilioRestClient()
 
 class Voicemail(object):
     """A simple class to represent a voicemail. Doesn't use a database"""
 
-    def __init__(self, from_number, transcription, recording_url, timestamp):
+    def __init__(self, from_number, transcription, recording_sid, timestamp):
         self.from_number = phonenumbers.parse(from_number)
         self.transcription = transcription
-        self.recording_url = recording_url
+        self.recording_sid = recording_sid
         self.timestamp = arrow.get(timestamp)
 
     def get_national_format(self):
@@ -39,9 +38,10 @@ class Voicemail(object):
     def send_sms_notification(self):
         """Send a SMS about a new voicemail"""
 
-        body = render_template('new_voicemail.txt', voicemail=self)
+        body = render_template('notifications/new_voicemail.txt', voicemail=self)
 
         # Send the text message
+        client = get_twilio_rest_client()
         client.messages.create(
             body=body,
             to=current_app.config['PHONE_NUMBER'],

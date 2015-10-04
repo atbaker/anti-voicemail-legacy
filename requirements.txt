@@ -2,6 +2,7 @@
 
 # Flask
 Flask==0.10.1
+Flask-Bootstrap==3.3.5.6
 Flask-Mail==0.9.1
 Flask-Script==2.0.5
 
