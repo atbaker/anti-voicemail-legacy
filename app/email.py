@@ -7,6 +7,7 @@ from . import mail
 def send_email(voicemail):
     """Send an email about a new voicemail"""
     # Get the current app
+    # Note to self: Not sure why I need this...
     app = current_app._get_current_object()
 
     # Prepare the email message

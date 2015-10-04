@@ -6,7 +6,7 @@ import arrow
 
 from . import main
 from ..models import Voicemail
-from ..utils import get_twilio_rest_client
+from ..utils import get_twilio_rest_client, lookup_number, send_contact_info
 
 
 @main.route('/')
@@ -15,18 +15,31 @@ def index():
     return 'foo'
 
 @main.route('/voicemail', methods=['POST'])
-def record_voicemail():
-    """Record a new voicemail"""
+def incoming_call():
+    """Ugh... someone wants to leave a voicemail..."""
+    caller = request.form['From']
+
     resp = twiml.Response()
+    resp.say('Andrew Baker is unable to answer the phone. The best way to \
+        reach them is by text message or email.')
 
-    # Tell the caller they reached the voicemail
-    resp.say('Andrew Baker is unable to answer the phone. Please leave a \
-              message after the beep.')
+    caller_info = lookup_number(caller)
 
-    # Record and transcribe their message
-    now = arrow.utcnow()
-    resp.record(action=url_for('main.hang_up'), transcribe=True,
-                transcribeCallback=url_for('main.send_notification', timestamp=now.timestamp))
+    # If the caller is on a mobile phone, offer to send them a text message
+    # with a phone number and email address
+    if caller_info.carrier['type'] == 'mobile':
+        resp.say("I will send you a text message with Andrew's phone number \
+            and email address. Goodbye")
+        send_contact_info(caller)
+    else:
+        # Begrudgingly let them leave a voicemail
+        resp.say('Next time please text or call Andrew. You may now leave \
+            a message after the beep.')
+
+        # Record and transcribe their message
+        now = arrow.utcnow()
+        resp.record(action=url_for('main.hang_up'), transcribe=True,
+                    transcribeCallback=url_for('main.send_notification', timestamp=now.timestamp))
 
     return str(resp)
 
