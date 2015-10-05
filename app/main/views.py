@@ -11,7 +11,6 @@ from ..utils import get_twilio_rest_client, lookup_number, send_contact_info
 
 @main.route('/')
 def index():
-    import pdb; pdb.set_trace()
     return 'foo'
 
 @main.route('/voicemail', methods=['POST'])
