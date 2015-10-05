@@ -26,7 +26,9 @@ def incoming_call():
 
     # If the caller is on a mobile phone, offer to send them a text message
     # with a phone number and email address
-    if caller_info.carrier['type'] == 'mobile':
+    # (also check that the carrier has a name so we're extra sure they
+    # can receive text messages)
+    if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
         resp.say("I will send you a text message with Andrew's phone number \
             and email address. Goodbye")
         send_contact_info(caller)
