@@ -34,7 +34,8 @@ def send_contact_info(phone_number):
 
     contact_info = render_template(
         'contact_info.txt', phone_number=local_format,
-        email_address=current_app.config['MAIL_USERNAME'])
+        email_address=current_app.config['MAIL_USERNAME'],
+        voicemail_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
     client.messages.create(
         body=contact_info,

@@ -1,4 +1,4 @@
-from flask import url_for, render_template, request
+from flask import current_app, url_for, render_template, request
 from flask_mail import Message
 from twilio import twiml
 
@@ -16,31 +16,39 @@ def index():
 @main.route('/voicemail', methods=['POST'])
 def incoming_call():
     """Ugh... someone wants to leave a voicemail..."""
-    caller = request.form['From']
-
     resp = twiml.Response()
-    resp.say('Andrew Baker is unable to answer the phone. The best way to \
-        reach them is by text message or email.')
 
-    caller_info = lookup_number(caller)
+    # Check if this call was forwarded from our main phone or was direct
+    # to our Twilio number
+    if 'ForwardedFrom' in request.form:
+        caller = request.form['From']
 
-    # If the caller is on a mobile phone, offer to send them a text message
-    # with a phone number and email address
-    # (also check that the carrier has a name so we're extra sure they
-    # can receive text messages)
-    if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
-        resp.say("I will send you a text message with Andrew's phone number \
-            and email address. Goodbye")
-        send_contact_info(caller)
-    else:
-        # Begrudgingly let them leave a voicemail
-        resp.say('Next time please text or call Andrew. You may now leave \
-            a message after the beep.')
+        resp.say('Andrew Baker is unable to answer the phone. The best way to \
+            reach them is by text message or email.')
 
-        # Record and transcribe their message
-        now = arrow.utcnow()
-        resp.record(action=url_for('main.hang_up'), transcribe=True,
-                    transcribeCallback=url_for('main.send_notification', timestamp=now.timestamp))
+        # Look up what type of phone the caller is using
+        caller_info = lookup_number(caller)
+
+        # If the caller is on a mobile phone, offer to send them a text message
+        # with a phone number and email address
+        # (also check that the carrier has a name so we're extra sure they
+        # can receive text messages)
+        if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
+            resp.say("I am sending you a text message with Andrew's phone number, \
+                email address, and voicemail number. Thank you.")
+            send_contact_info(caller)
+            return str(resp)
+        else:
+            resp.say("Andrew will receive text messages you send to this number. \
+                You can email them at {0}".format(current_app.config['MAIL_USERNAME']))
+
+    # Begrudgingly let them leave a voicemail
+    resp.say('You may now leave a message after the beep.')
+
+    # Record and transcribe their message
+    now = arrow.utcnow()
+    resp.record(action=url_for('main.hang_up'), transcribe=True,
+                transcribeCallback=url_for('main.send_notification', timestamp=now.timestamp))
 
     return str(resp)
 

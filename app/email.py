@@ -1,9 +1,14 @@
 from flask import current_app, render_template
 from flask.ext.mail import Message
+from threading import Thread
+
 from . import mail
 
 
-# def send_email(to, subject, template, **kwargs):
+def send_async_email(app, message):
+    with app.app_context():
+        mail.send(message)
+
 def send_email(voicemail):
     """Send an email about a new voicemail"""
     # Get the current app
@@ -20,7 +25,8 @@ def send_email(voicemail):
     message.body = render_template('notifications/new_voicemail.txt', voicemail=voicemail)
     message.html = render_template('notifications/new_voicemail.html', voicemail=voicemail)
 
-    # Send it
-    mail.send(message)
+    # Send it asynchronously
+    thread = Thread(target=send_async_email, args=[app, message])
+    thread.start()
 
     return
