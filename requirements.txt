@@ -4,10 +4,11 @@
 Flask==0.10.1
 Flask-Bootstrap==3.3.5.6
 Flask-Mail==0.9.1
+Flask-Migrate==1.6.0
 Flask-Script==2.0.5
+Flask-SQLAlchemy==2.0
 
 # Third party libraries
-arrow==0.6.0
 phonenumbers==7.0.11
 twilio==4.6.0
 

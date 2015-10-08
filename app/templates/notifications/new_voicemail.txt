@@ -1,4 +1,4 @@
-New voicemail from {{ voicemail.get_national_format() }} at {{ voicemail.get_local_time() }}:
+New voicemail from {{ voicemail.get_national_format() }}:
 
 Transcription:
 {{ voicemail.transcription }}

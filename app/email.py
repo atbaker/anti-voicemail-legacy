@@ -16,8 +16,8 @@ def send_email(voicemail):
     app = current_app._get_current_object()
 
     # Prepare the email message
-    subject = 'New voicemail from {0} at {1}'.format(
-        voicemail.get_national_format(), voicemail.get_local_time())
+    subject = 'New voicemail from {0}'.format(
+        voicemail.get_national_format())
 
     message = Message(subject,
                       sender=app.config['MAIL_SENDER'],

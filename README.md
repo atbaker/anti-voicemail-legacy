@@ -3,10 +3,21 @@ A voicemail app for people who really, really don't like receiving voicemails
 
 ## To-do
 
-- Get calling Twilio number directly to work (need some persistence that remembers who called before)
-- Investigate ForwardedFrom capability
+- Add carrier voicemail code to final setup step
+- Investigate using TwiML <Message> vs. REST API message
+- Maybe use forms even though we're accepting data from Twilio
+- Put a Gather in before non-mobile numbers are allowed to leave a voicemail
 - Write tests
-- Model for Mailbox stored locally in SQLite
-- SMS-based setup workflow
 - QR code SQLite dump
 - Maybe restructure views.py
+- Nicer template for listening to voicemail
+
+Follow ups:
+    - Time zone - Just use browser to get it programatically
+
+- Multi-tenant:
+    - Calling Twilio Number directly: Remember a previous call
+
+DONE:
+    - Model for Mailbox stored locally in SQLite
+    - SMS-based setup workflow

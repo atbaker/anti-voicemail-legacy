@@ -5,7 +5,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     # User config values
     PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
-    TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
 
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
@@ -24,6 +23,10 @@ class Config:
     SMS_NOTIFICATIONS = TWILIO_PHONE_NUMBER is not None
     EMAIL_NOTIFICATIONS = MAIL_USERNAME is not None
 
+    # SQLAlchemy
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+
+
     @staticmethod
     def init_app(app):
         pass
@@ -31,14 +34,20 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
 class TestingConfig(Config):
     TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 
 
 config = {

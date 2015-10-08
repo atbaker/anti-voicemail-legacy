@@ -1,4 +1,4 @@
-Thanks for not leaving a voicemail! Here's how you can contact Andrew:
+Thanks for not leaving a voicemail! Here's how you can contact {{ name }}:
 
 Text message:
 {{ phone_number }}
@@ -6,5 +6,5 @@ Text message:
 Email:
 {{ email_address }}
 
-If you still need to leave a voicemail, this phone number goes straight to Andrew's voicemail:
+If you still need to leave a voicemail, this phone number goes straight to {{ name }}'s voicemail:
 {{ voicemail_number }}
