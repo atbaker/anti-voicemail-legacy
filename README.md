@@ -12,6 +12,9 @@ A voicemail app for people who really, really don't like receiving voicemails
 - Maybe restructure views.py
 - Nicer template for listening to voicemail
 
+Maybe:
+    - Ask for pronoun preference in setup?
+
 Follow ups:
     - Time zone - Just use browser to get it programatically
 

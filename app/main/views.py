@@ -23,8 +23,8 @@ def incoming_call():
         # First, make sure this is a call for a mailbox that's configured
         mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
 
-        if mailbox is None:
-            # This mailbox doesn't exist - end the call
+        if mailbox is None or not mailbox.name:
+            # This mailbox doesn't exist / isn't configured: end the call
             resp.say('This phone number cannot receive voicemails right now. Goodbye')
             return str(resp)
 
