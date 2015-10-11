@@ -1,4 +1,4 @@
-New voicemail from {{ voicemail.get_national_format() }}:
+New voicemail from {{ voicemail.from_number|national_format }}:
 
 Transcription:
 {{ voicemail.transcription }}

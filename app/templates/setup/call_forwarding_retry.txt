@@ -1,0 +1,7 @@
+Hey! I'm still waiting to receive my first voicemail.
+
+You should:
+
+1) Call this number to enable call forwarding: {{ mailbox.get_call_forwarding_code() }}
+
+2) Call yourself to leave your first voicemail: {{ mailbox.phone_number|national_format }}

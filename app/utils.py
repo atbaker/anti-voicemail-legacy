@@ -23,3 +23,8 @@ def lookup_number(phone_number):
                                            include_carrier_info=True)
 
     return number_info
+
+def convert_to_national_format(phone_number):
+    """Converts an E.164 formatted number to a national format"""
+    return phonenumbers.format_number(phonenumbers.parse(phone_number),
+                                      phonenumbers.PhoneNumberFormat.NATIONAL)

@@ -1,10 +1,18 @@
-Thanks for not leaving a voicemail! Here's how you can contact {{ name }}:
+{% if from_user %}
+Woohoo! Now I'm all set to answer your voicemails!
+
+By the way, here's the text message I'll send to people who try to call you from now on:
+
+----------------
+
+{% endif %}
+Thanks for not leaving a voicemail! Here's how you can contact {{ mailbox.name }}:
 
 Text message:
-{{ phone_number }}
+{{ mailbox.phone_number }}
 
 Email:
 {{ email_address }}
 
-If you still need to leave a voicemail, this phone number goes straight to {{ name }}'s voicemail:
-{{ voicemail_number }}
+If you still need to leave a voicemail, this phone number goes straight to {{ mailbox.name }}'s voicemail:
+{{ voicemail_number|national_format }}

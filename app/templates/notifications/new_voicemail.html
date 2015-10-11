@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Voicemail from {{ voicemail.get_national_format() }}</title>
+    <title>Voicemail from {{ voicemail.from_number|national_format }}</title>
   </head>
   <body>
-    <h1>Voicemail from {{ voicemail.get_national_format() }}</h1>
+    <h1>Voicemail from {{ voicemail.from_number|national_format }}</h1>
 
     <h2>Transcription</h2>
     <p>{{ voicemail.transcription }}</p>

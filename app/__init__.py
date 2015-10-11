@@ -4,6 +4,8 @@ from flask.ext.mail import Mail
 from flask.ext.sqlalchemy import SQLAlchemy
 from config import config
 
+from .utils import convert_to_national_format
+
 bootstrap = Bootstrap()
 mail = Mail()
 db = SQLAlchemy()
@@ -20,5 +22,8 @@ def create_app(config_name):
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    # Register our custom template filter
+    app.jinja_env.filters['national_format'] = convert_to_national_format
 
     return app

@@ -17,11 +17,12 @@ def incoming_call():
     """Ugh... someone wants to leave a voicemail..."""
     resp = twiml.Response()
 
+    # Get our mailbox (if it's configured)
+    mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
+
     # Check if this call was forwarded from our main phone or was direct
     # to our Twilio number
     if 'ForwardedFrom' in request.form:
-        # First, make sure this is a call for a mailbox that's configured
-        mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
 
         if mailbox is None or not mailbox.name:
             # This mailbox doesn't exist / isn't configured: end the call
@@ -97,7 +98,9 @@ def view_recording(recording_sid):
 @main.route('/sms', methods=['POST'])
 def sms_message():
     """Receives an SMS message from a number"""
+    resp = twiml.Response()
     from_number = request.form['From']
+
     # See if we have a Mailbox for this number
     mailbox = Mailbox.query.filter_by(phone_number=from_number).first()
 
@@ -105,6 +108,7 @@ def sms_message():
         # Make sure we don't have another mailbox already
         if Mailbox.query.count() > 0:
             # We're single-tenant for now, so don't make any more mailboxes
+            # and ignore the text
             return ('', 204)
 
         # Make a mailbox for this number
@@ -112,18 +116,24 @@ def sms_message():
         db.session.add(new_mailbox)
 
         # Ask the user what their name is
-        new_mailbox.ask_name()
+        resp.message(render_template('setup/ask_name.txt'))
+
     elif not mailbox.name:
         # If we have a mailbox but don't have a name, assume this message
         # contains the user's name
         mailbox.name = request.form['Body']
         db.session.add(mailbox)
 
-        # Tell the user we're all done with setup
-        mailbox.notify_setup_complete()
-    else:
-        # We have no idea why the user is texting us
-        mailbox.i_have_no_idea_what_im_doing()
+        # Tell the user how to set up conditional call forwarding
+        resp.message(render_template('setup/call_forwarding.txt', mailbox=mailbox))
 
-    # Be a nice web server and tell Twilio we're all done
-    return ('', 204)
+    elif not mailbox.call_forwarding_set:
+        # Remind the user how to set up call forwarding
+        resp.message(render_template('setup/call_forwarding_retry.txt', mailbox=mailbox))
+
+    else:
+        # We have no idea why the user is texting us and would prefer it if
+        # they left us alone
+        resp.message(render_template('setup/no_idea.txt', mailbox=mailbox))
+
+    return str(resp)

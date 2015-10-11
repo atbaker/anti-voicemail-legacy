@@ -1,3 +1,0 @@
-Pleased to meet you, {{ mailbox.name }}! I'm all set to handle your voicemails.
-
-Give yourself a call and try it out yourself: {{ mailbox.phone_number }}

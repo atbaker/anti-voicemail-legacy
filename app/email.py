@@ -3,6 +3,7 @@ from flask.ext.mail import Message
 from threading import Thread
 
 from . import mail
+from .utils import convert_to_national_format
 
 
 def send_async_email(app, message):
@@ -17,7 +18,7 @@ def send_email(voicemail):
 
     # Prepare the email message
     subject = 'New voicemail from {0}'.format(
-        voicemail.get_national_format())
+        convert_to_national_format(voicemail.from_number))
 
     message = Message(subject,
                       sender=app.config['MAIL_SENDER'],

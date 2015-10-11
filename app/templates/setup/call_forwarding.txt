@@ -1,0 +1,10 @@
+Pleased to meet you, {{ mailbox.name }}!
+
+The last thing we need to do is forward your missed calls to me.
+
+You're on {{ mailbox.carrier }}, so you need to call this strange number:
+{{ mailbox.get_call_forwarding_code() }}
+(don't forget the star at the front!)
+
+Once you've done that, try leaving yourself a voicemail:
+{{ mailbox.phone_number|national_format }}
