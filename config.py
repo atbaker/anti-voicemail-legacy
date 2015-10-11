@@ -6,6 +6,9 @@ class Config:
     # User config values
     PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
+    # Flask config
+    SERVER_NAME = 'ab4a0b86.ngrok.io'
+
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')

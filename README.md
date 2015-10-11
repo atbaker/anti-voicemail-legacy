@@ -3,12 +3,12 @@ A voicemail app for people who really, really don't like receiving voicemails
 
 ## To-do
 
+- QR Code Import
 - Refactor onboarding
-- Investigate using TwiML <Message> vs. REST API message
 - Maybe use forms even though we're accepting data from Twilio
+- Integrate QR code into setup workflow
 - Put a Gather in before non-mobile numbers are allowed to leave a voicemail
 - Write tests
-- QR code SQLite dump
 - Maybe restructure views.py
 - Nicer template for listening to voicemail
 
@@ -25,6 +25,8 @@ DONE:
     - Model for Mailbox stored locally in SQLite
     - SMS-based setup workflow
     - Add carrier voicemail code to final setup step
+    - Investigate using TwiML <Message> vs. REST API message
+    - QR code SQLite dump
 
 ## Carrier voicemail codes
 

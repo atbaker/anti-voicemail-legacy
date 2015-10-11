@@ -1,6 +1,8 @@
-from flask import current_app, render_template
+from flask import current_app, render_template, url_for
+from sqlalchemy.ext.serializer import loads, dumps
 
 import phonenumbers
+import qrcode
 
 from . import db
 from .email import send_email
@@ -69,6 +71,30 @@ class Mailbox(db.Model):
             to=caller_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
+
+    def generate_qr_code(self):
+        """Generate a QR code which represents this Mailbox"""
+        # Serialize this Mailbox
+        serialized = dumps(self)
+
+        # Make a QR code out of it
+        return qrcode.make(serialized)
+
+    def send_qr_code(self):
+        """Sends a QR code with all our configuration to our user"""
+        client = get_twilio_rest_client()
+
+        client.messages.create(
+            body="By the way, here's a QR code",
+            to=self.phone_number,
+            from_=current_app.config['TWILIO_PHONE_NUMBER'],
+            media_url=url_for('main.qr_code', _external=True)
+        )
+
+    @classmethod
+    def import_qr_code(cls):
+        """Replaces any Mailbox in the database with one from the QR code"""
+        pass
 
 
 class Voicemail(object):
