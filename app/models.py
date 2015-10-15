@@ -55,11 +55,6 @@ class Mailbox(db.Model):
         # Set an extra variable if the caller is our user
         from_user = caller_number == self.phone_number
 
-        # Update the call_forwarding_set property if applicable
-        if from_user and not self.call_forwarding_set:
-            self.call_forwarding_set = True
-            db.session.add(self)
-
         # Send contact info for our user to our caller
         contact_info = render_template(
             'contact_info.txt', mailbox=self, from_user=from_user,
@@ -72,6 +67,14 @@ class Mailbox(db.Model):
             to=caller_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
+
+        # If this call is the user trying out Anti-Voicemail for the first time,
+        # update the call_forwarding_set property and send them the config image
+        if from_user and not self.call_forwarding_set:
+            self.call_forwarding_set = True
+            db.session.add(self)
+
+            self.send_config_image()
 
     def generate_config_image(self):
         """
@@ -102,10 +105,11 @@ class Mailbox(db.Model):
         Sends a special image to our user which contains the configuration
         for this Mailbox
         """
-        client = get_twilio_rest_client()
+        body = render_template('setup/config_image.txt')
 
+        client = get_twilio_rest_client()
         client.messages.create(
-            body="ENJOY THE GIF DUDE",
+            body=body,
             to=self.phone_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER'],
             media_url=url_for('main.config_image', _external=True)

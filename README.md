@@ -3,9 +3,7 @@ A voicemail app for people who really, really don't like receiving voicemails
 
 ## To-do
 
-- QR Code Import - use API
-    - http://goqr.me/api/doc/read-qr-code/
-    - https://api.qrserver.com/v1/read-qr-code/?fileurl=http://ab4a0b86.ngrok.io/qr-code.png
+- Config image import
 - Refactor onboarding
 - Maybe use forms even though we're accepting data from Twilio
 - Integrate QR code into setup workflow
@@ -29,6 +27,7 @@ DONE:
     - Add carrier voicemail code to final setup step
     - Investigate using TwiML <Message> vs. REST API message
     - QR code SQLite dump
+    - Add config image to TwimL responses
 
 ## Carrier voicemail codes
 

@@ -1,5 +1,5 @@
 {% if from_user %}
-Woohoo! Now I'm all set to answer your voicemails!
+Woohoo! It's working!
 
 By the way, here's the text message I'll send to people who try to call you from now on:
 
