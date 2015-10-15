@@ -2,8 +2,6 @@ from flask import current_app, send_file, url_for, render_template, request
 from flask_mail import Message
 from twilio import twiml
 
-from io import BytesIO
-
 from . import main
 from .. import db
 from ..models import Mailbox, Voicemail
@@ -140,16 +138,11 @@ def sms_message():
 
     return str(resp)
 
-@main.route('/qr-code.png')
-def qr_code():
-    """Returns the QR Code for the mailbox"""
+@main.route('/config-image')
+def config_image():
+    """Returns the config image for the mailbox"""
     # Get our mailbox
     mailbox = Mailbox.query.first_or_404()
-    mailbox_data = mailbox.generate_qr_code()
+    img_io, mimetype = mailbox.generate_config_image()
 
-    # Set up a stream
-    img_io = BytesIO()
-    mailbox_data.save(img_io)
-    img_io.seek(0)
-
-    return send_file(img_io, mimetype='image/png')
+    return send_file(img_io, mimetype=mimetype)

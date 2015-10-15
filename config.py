@@ -6,8 +6,13 @@ class Config:
     # User config values
     PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
+    # Anti-voicemail config
+    # NOTE: This image *must* be under 500kb - images larger than that are
+    # likely to be compressed by carriers
+    CONFIG_IMAGE_URL = 'https://s3.amazonaws.com/atbaker.me/goodbye_voicemails.gif'
+
     # Flask config
-    SERVER_NAME = 'ab4a0b86.ngrok.io'
+    SERVER_NAME = '67ab428d.ngrok.io'
 
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')

@@ -1,8 +1,9 @@
 from flask import current_app, render_template, url_for
+from io import BytesIO
 from sqlalchemy.ext.serializer import loads, dumps
 
 import phonenumbers
-import qrcode
+import requests
 
 from . import db
 from .email import send_email
@@ -72,29 +73,49 @@ class Mailbox(db.Model):
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
 
-    def generate_qr_code(self):
-        """Generate a QR code which represents this Mailbox"""
+    def generate_config_image(self):
+        """
+        Generate an image which not-so-secretly contains the configuration
+        for this Mailbox
+        """
+        # Make a new BytesIO stream
+        img_io = BytesIO()
+
+        # Get the GIF specified in our config and write it to the new stream
+        response = requests.get(current_app.config['CONFIG_IMAGE_URL'])
+        img_io.write(response.content)
+
         # Serialize this Mailbox
         serialized = dumps(self)
 
-        # Make a QR code out of it
-        return qrcode.make(serialized)
+        # Append the serialized mailbox to the stream
+        img_io.write(serialized)
 
-    def send_qr_code(self):
-        """Sends a QR code with all our configuration to our user"""
+        # Reset to the beginning of our stream
+        img_io.seek(0)
+
+        # Return the stream and the mimetype of the original image's response
+        return img_io, response.headers['Content-Type']
+
+    def send_config_image(self):
+        """
+        Sends a special image to our user which contains the configuration
+        for this Mailbox
+        """
         client = get_twilio_rest_client()
 
         client.messages.create(
-            body="By the way, here's a QR code",
+            body="ENJOY THE GIF DUDE",
             to=self.phone_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER'],
-            media_url=url_for('main.qr_code', _external=True)
+            media_url=url_for('main.config_image', _external=True)
         )
 
     @classmethod
     def import_qr_code(cls):
         """Replaces any Mailbox in the database with one from the QR code"""
         pass
+
 
 
 class Voicemail(object):
