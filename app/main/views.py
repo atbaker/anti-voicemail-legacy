@@ -101,6 +101,12 @@ def sms_message():
     resp = twiml.Response()
     from_number = request.form['From']
 
+    # If the message has an image, assume this is a user trying to restore
+    # their settings
+    media_url = request.form.get('MediaUrl0')
+    if media_url is not None:
+        Mailbox.import_qr_code(media_url)
+
     # See if we have a Mailbox for this number
     mailbox = Mailbox.query.filter_by(phone_number=from_number).first()
 

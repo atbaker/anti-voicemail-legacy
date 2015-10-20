@@ -84,7 +84,7 @@ class Mailbox(db.Model):
         # Make a new BytesIO stream
         img_io = BytesIO()
 
-        # Get the GIF specified in our config and write it to the new stream
+        # Get the image specified in our config and write it to the new stream
         response = requests.get(current_app.config['CONFIG_IMAGE_URL'])
         img_io.write(response.content)
 
@@ -116,9 +116,20 @@ class Mailbox(db.Model):
         )
 
     @classmethod
-    def import_qr_code(cls):
-        """Replaces any Mailbox in the database with one from the QR code"""
-        pass
+    def import_qr_code(cls, config_image_url):
+        """
+        Replaces any Mailbox in the database with one from
+        data stored in a config image
+        """
+        # Get the original image's length
+        # (must be the same image that was used to create the config image)
+        response = requests.head(current_app.config['CONFIG_IMAGE_URL'])
+        original_length = response.headers['content-length']
+
+        # Get the user's config image from Twilio
+        config_image = requests.get(config_image_url)
+
+        import pdb; pdb.set_trace()
 
 
 
