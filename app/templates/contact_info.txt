@@ -8,7 +8,7 @@ By the way, here's the text message I'll send to people who try to call you from
 Thanks for not leaving a voicemail! Here's how you can contact {{ mailbox.name }}:
 
 Text message:
-{{ mailbox.phone_number }}
+{{ mailbox.phone_number|national_format }}
 
 Email:
 {{ email_address }}
