@@ -3,7 +3,15 @@ A voicemail app for people who really, really don't like receiving voicemails
 
 ## To-do
 
+QR CODES THAT ARE GIFS! GIFS THAT ARE QR CODES?!?! The world will never be the same.
+- `brew install zbar` - +1 reason for Dockerizing this thing
+http://stackoverflow.com/questions/24688802/saving-an-animated-gif-in-pillow
+http://stackoverflow.com/questions/15144483/compositing-two-images-with-python-wand
+http://www.graphicsmagick.org/programming.html
+
+
 - Config image import
+- Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
 - Refactor onboarding
 - Maybe use forms even though we're accepting data from Twilio
 - Integrate QR code into setup workflow

@@ -1,0 +1,9 @@
+⚡ Bzzzzt! ⚡
+
+Now I remember *everything* about you:
+
+Name: {{ mailbox.name }}
+Phone number: {{ mailbox.phone_number|national_format }}
+Carrier: {{ mailbox.carrier }}
+
+Can you try leaving yourself a voicemail again to make sure I'm working correctly?

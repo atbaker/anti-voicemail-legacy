@@ -4,7 +4,6 @@ Woohoo! It's working!
 By the way, here's the text message I'll send to people who try to call you from now on:
 
 ----------------
-
 {% endif %}
 Thanks for not leaving a voicemail! Here's how you can contact {{ mailbox.name }}:
 

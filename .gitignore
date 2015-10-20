@@ -4,10 +4,6 @@
 # Database files
 *.sqlite
 
-# Test GIF
-goodbye_voicemails.gif
-.DS_Store
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

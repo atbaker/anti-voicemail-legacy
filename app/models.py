@@ -1,8 +1,8 @@
 from flask import current_app, render_template, url_for
-from io import BytesIO
-from sqlalchemy.ext.serializer import loads, dumps
 
+import json
 import phonenumbers
+import qrcode
 import requests
 
 from . import db
@@ -26,12 +26,18 @@ class Mailbox(db.Model):
     name = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
 
-    def __init__(self, phone_number):
-        self.phone_number = phone_number
+    def __init__(self, phone_number, id=None, carrier=None, name=None, call_forwarding_set=None):
+        # Get the carrier if none was provided
+        if carrier is None:
+            # Look up the carrier
+            lookup_info = lookup_number(phone_number)
+            carrier = lookup_info.carrier['name']
 
-        # Look up the carrier
-        lookup_info = lookup_number(phone_number)
-        self.carrier = lookup_info.carrier['name']
+        self.id = id
+        self.phone_number = phone_number
+        self.carrier = carrier
+        self.name = name
+        self.call_forwarding_set = call_forwarding_set
 
     def __repr__(self):
         return '<Mailbox %r>' % self.phone_number
@@ -77,33 +83,21 @@ class Mailbox(db.Model):
             self.send_config_image()
 
     def generate_config_image(self):
-        """
-        Generate an image which not-so-secretly contains the configuration
-        for this Mailbox
-        """
-        # Make a new BytesIO stream
-        img_io = BytesIO()
-
-        # Get the image specified in our config and write it to the new stream
-        response = requests.get(current_app.config['CONFIG_IMAGE_URL'])
-        img_io.write(response.content)
-
+        """Generate a QR code which represents this Mailbox"""
         # Serialize this Mailbox
-        serialized = dumps(self)
+        mailbox_dict = self.__dict__.copy()
+        mailbox_dict['call_forwarding_set'] = False
+        del mailbox_dict['_sa_instance_state']
 
-        # Append the serialized mailbox to the stream
-        img_io.write(serialized)
+        mailbox_json = json.dumps(mailbox_dict)
 
-        # Reset to the beginning of our stream
-        img_io.seek(0)
-
-        # Return the stream and the mimetype of the original image's response
-        return img_io, response.headers['Content-Type']
+        # Make a QR code out of it
+        return qrcode.make(mailbox_json)
 
     def send_config_image(self):
         """
-        Sends a special image to our user which contains the configuration
-        for this Mailbox
+        Sends a QR code image to our user which contains the configuration for
+        this Mailbox
         """
         body = render_template('setup/config_image.txt')
 
@@ -116,21 +110,38 @@ class Mailbox(db.Model):
         )
 
     @classmethod
-    def import_qr_code(cls, config_image_url):
+    def import_config_image(cls, config_image_url):
         """
         Replaces any Mailbox in the database with one from
         data stored in a config image
         """
-        # Get the original image's length
-        # (must be the same image that was used to create the config image)
-        response = requests.head(current_app.config['CONFIG_IMAGE_URL'])
-        original_length = response.headers['content-length']
+        client = get_twilio_rest_client()
 
-        # Get the user's config image from Twilio
-        config_image = requests.get(config_image_url)
+        try:
+            # Read the QR code using api.qrserver.com
+            response = requests.get('https://api.qrserver.com/v1/read-qr-code/',
+                params={'fileurl': config_image_url})
 
-        import pdb; pdb.set_trace()
+            # Get the QR data and convert it to bytes
+            serialized = response.json()[0]['symbol'][0]['data']
+            mailbox_dict = json.loads(serialized)
 
+            # Load the serialized data
+            mailbox = cls(**mailbox_dict)
+
+            # Delete any existing Mailbox
+            cls.query.delete()
+
+            # Save the new Mailbox
+            db.session.add(mailbox)
+            db.session.commit()
+
+            # It worked! Let our user know they're good to go
+            return render_template('setup/restore_config.txt', mailbox=mailbox)
+
+        except Exception:
+            # Something went wrong - this isn't going to work
+            return "Ooops! I couldn't read that file after all. Sorry! D:"
 
 
 class Voicemail(object):
