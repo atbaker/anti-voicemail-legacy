@@ -28,7 +28,7 @@
           "description": "The phone number you want to use Anti-Voicemail with",
           "value": "+15555555555",
           "required": true
-        },
+        }
     },
     "addons" : [
         "heroku-postgresql"
