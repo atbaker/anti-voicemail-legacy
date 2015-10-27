@@ -1,0 +1,8 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Welcome to Anti-Voicemail!{% endblock %}
+
+{% block content %}
+  <div class="text-center">
+    <h1>Text me at {{ twilio_number|national_format }} to configure me!</h1>
+  </div>
+{% endblock %}

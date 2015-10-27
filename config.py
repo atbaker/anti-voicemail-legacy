@@ -6,11 +6,6 @@ class Config:
     # User config values
     PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
 
-    # Anti-voicemail config
-    # NOTE: This image *must* be under 500kb - images larger than that are
-    # likely to be compressed by carriers
-    CONFIG_IMAGE_URL = 'http://atbaker.me/goodbye_voicemails.gif'
-
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')

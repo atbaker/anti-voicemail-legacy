@@ -1,5 +1,24 @@
-# anti-voicemail
+# Anti-Voicemail
+
 A voicemail app for people who really, really don't like receiving voicemails
+
+## Deploy now
+
+Deploy on Heroku instantly:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/atbaker/anti-voicemail)
+
+## Carrier voicemail codes
+
+- Verizon: *71 + national format number (reset - *73)
+    - name: "Verizon Wireless"
+    - Details: http://www.verizonwireless.com/mobile-living/tech-smarts/verizon-call-forwarding/
+- AT&T: Dial *92, enter a forwarding number, then press #. (reset - Dial *93#.)
+    - name: "AT&T Wireless"
+- Sprint: *73 (reset - *730)
+    - name: "Sprint Spectrum, L.P."
+- T-Mobile:
+    - name: "T-Mobile USA, Inc."
 
 ## To-do
 
@@ -10,8 +29,9 @@ http://stackoverflow.com/questions/15144483/compositing-two-images-with-python-w
 http://www.graphicsmagick.org/programming.html
 
 
-- Config image import
 - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
+- See if we can remove TWILIO_NUMBER from environment variables
+- Nicer try/except block on import if possible
 - Refactor onboarding
 - Maybe use forms even though we're accepting data from Twilio
 - Integrate QR code into setup workflow
@@ -36,15 +56,4 @@ DONE:
     - Investigate using TwiML <Message> vs. REST API message
     - QR code SQLite dump
     - Add config image to TwimL responses
-
-## Carrier voicemail codes
-
-- Verizon: *71 + national format number (reset - *73)
-    - name: "Verizon Wireless"
-    - Details: http://www.verizonwireless.com/mobile-living/tech-smarts/verizon-call-forwarding/
-- AT&T: Dial *92, enter a forwarding number, then press #. (reset - Dial *93#.)
-    - name: "AT&T Wireless"
-- Sprint: *73 (reset - *730)
-    - name: "Sprint Spectrum, L.P."
-- T-Mobile:
-    - name: "T-Mobile USA, Inc."
+    - Config image import

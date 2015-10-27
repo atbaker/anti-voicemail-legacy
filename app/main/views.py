@@ -11,7 +11,7 @@ from ..utils import get_twilio_rest_client, lookup_number
 
 @main.route('/')
 def index():
-    return 'foo'
+    return render_template('index.html', twilio_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
 @main.route('/voicemail', methods=['POST'])
 def incoming_call():
@@ -47,8 +47,12 @@ def incoming_call():
             mailbox.send_contact_info(caller)
             return str(resp)
         else:
-            resp.say("{0} will receive text messages you send to this number. \
-                You can email them at {1}".format(mailbox.name, current_app.config['MAIL_USERNAME']))
+            contact_info = "{0} will receive text messages you send to this number.".format(mailbox.name)
+
+            if current_app.config['MAIL_USERNAME'] is not None:
+                contact_info += 'You can email them at {0}'.format(current_app.config['MAIL_USERNAME'])
+
+            resp.say(contact_info)
 
     # Begrudgingly let them leave a voicemail
     resp.say('You may now leave a message after the beep.')
