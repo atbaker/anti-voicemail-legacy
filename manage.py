@@ -22,10 +22,10 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 @manager.command
-def clear_database():
+def reset():
     """Deletes all data from the database"""
     Mailbox.query.delete()
-    print("Database cleared")
+    print("Mailbox deleted")
 
 if __name__ == '__main__':
     manager.run()

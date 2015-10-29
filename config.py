@@ -3,8 +3,8 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    # User config values
-    PHONE_NUMBER = os.environ.get('PHONE_NUMBER')
+    # Secret key
+    SECRET_KEY = os.environ.get('SECRET_KEY')
 
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')

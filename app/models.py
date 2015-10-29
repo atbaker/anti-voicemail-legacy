@@ -24,9 +24,10 @@ class Mailbox(db.Model):
     phone_number = db.Column(db.String(20), unique=True)
     carrier = db.Column(db.String(50))
     name = db.Column(db.String(100))
+    email = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
 
-    def __init__(self, phone_number, id=None, carrier=None, name=None, call_forwarding_set=None):
+    def __init__(self, phone_number, id=None, carrier=None, name=None, email=None, call_forwarding_set=None):
         # Get the carrier if none was provided
         if carrier is None:
             # Look up the carrier
@@ -64,7 +65,6 @@ class Mailbox(db.Model):
         # Send contact info for our user to our caller
         contact_info = render_template(
             'contact_info.txt', mailbox=self, from_user=from_user,
-            email_address=current_app.config['MAIL_USERNAME'],
             voicemail_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
         client = get_twilio_rest_client()
@@ -152,6 +152,9 @@ class Voicemail(object):
         self.transcription = transcription
         self.recording_sid = recording_sid
 
+        # Set a mailbox property also, for convenience
+        self.mailbox = Mailbox.query.one()
+
     def send_notification(self):
         """Notify our user that they have a new voicemail"""
         # Send a notification for each method that's configured
@@ -170,6 +173,6 @@ class Voicemail(object):
         client = get_twilio_rest_client()
         client.messages.create(
             body=body,
-            to=current_app.config['PHONE_NUMBER'],
+            to=self.mailbox.phone_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )

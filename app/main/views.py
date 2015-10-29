@@ -4,6 +4,7 @@ from io import BytesIO
 from twilio import twiml
 
 from . import main
+from .forms import EmailForm
 from .. import db
 from ..models import Mailbox, Voicemail
 from ..utils import get_twilio_rest_client, lookup_number
@@ -25,7 +26,7 @@ def incoming_call():
     # to our Twilio number
     if 'ForwardedFrom' in request.form:
 
-        if mailbox is None or not mailbox.name:
+        if mailbox is None or not mailbox.email:
             # This mailbox doesn't exist / isn't configured: end the call
             resp.say('This phone number cannot receive voicemails right now. Goodbye')
             return str(resp)
@@ -47,11 +48,7 @@ def incoming_call():
             mailbox.send_contact_info(caller)
             return str(resp)
         else:
-            contact_info = "{0} will receive text messages you send to this number.".format(mailbox.name)
-
-            if current_app.config['MAIL_USERNAME'] is not None:
-                contact_info += 'You can email them at {0}'.format(current_app.config['MAIL_USERNAME'])
-
+            contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
             resp.say(contact_info)
 
     # Begrudgingly let them leave a voicemail
@@ -66,8 +63,7 @@ def incoming_call():
 @main.route('/hang-up', methods=['POST'])
 def hang_up():
     """
-    Ends a call. Only used when a caller has been droning on for more than
-    two minutes.
+    Ends a call.
     """
     resp = twiml.Response()
 
@@ -128,7 +124,7 @@ def sms_message():
         new_mailbox = Mailbox(from_number)
         db.session.add(new_mailbox)
 
-        # Ask the user what their name is
+        # Ask the user for their name
         resp.message(render_template('setup/ask_name.txt'))
 
     elif not mailbox.name:
@@ -137,8 +133,22 @@ def sms_message():
         mailbox.name = request.form['Body']
         db.session.add(mailbox)
 
-        # Tell the user how to set up conditional call forwarding
-        resp.message(render_template('setup/call_forwarding.txt', mailbox=mailbox))
+        # Ask the user for their email address
+        resp.message(render_template('setup/ask_email.txt', mailbox=mailbox))
+
+    elif not mailbox.email:
+        # If we have a name but not an email adddress, assume this message
+        # contains the user's email address
+        form = EmailForm(email=request.form['Body'], csrf_enabled=False)
+
+        if form.validate():
+            mailbox.email = request.form['Body']
+            db.session.add(mailbox)
+
+            # Tell the user how to set up conditional call forwarding
+            resp.message(render_template('setup/call_forwarding.txt', mailbox=mailbox))
+        else:
+            resp.message(render_template('setup/email_retry.txt'))
 
     elif not mailbox.call_forwarding_set:
         # Remind the user how to set up call forwarding

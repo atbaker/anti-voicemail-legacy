@@ -24,10 +24,9 @@
           "value": "+15555555555",
           "required": true
         },
-        "PHONE_NUMBER": {
-          "description": "The phone number you want to use Anti-Voicemail with",
-          "value": "+15555555555",
-          "required": true
+        "SECRET_KEY": {
+          "description": "A unique, unpredictable key for our Flask app",
+          "generator": "secret"
         },
         "FLASK_CONFIG": {
           "description": "Instructs our app to use the production settings",

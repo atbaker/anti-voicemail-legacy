@@ -22,15 +22,9 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-QR CODES THAT ARE GIFS! GIFS THAT ARE QR CODES?!?! The world will never be the same.
-- `brew install zbar` - +1 reason for Dockerizing this thing
-http://stackoverflow.com/questions/24688802/saving-an-animated-gif-in-pillow
-http://stackoverflow.com/questions/15144483/compositing-two-images-with-python-wand
-http://www.graphicsmagick.org/programming.html
-
-
+- Validate email field using WTF
+- Make help menu
 - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
-- See if we can remove TWILIO_NUMBER from environment variables
 - Nicer try/except block on import if possible
 - Refactor onboarding
 - Maybe use forms even though we're accepting data from Twilio
@@ -57,3 +51,4 @@ DONE:
     - QR code SQLite dump
     - Add config image to TwimL responses
     - Config image import
+    - See if we can remove PHONE_NUMBER from environment variables

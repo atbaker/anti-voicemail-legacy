@@ -11,7 +11,7 @@ Text message:
 {{ mailbox.phone_number|national_format }}
 
 Email:
-{{ email_address }}
+{{ mailbox.email }}
 
 If you still need to leave a voicemail, this phone number goes straight to {{ mailbox.name }}'s voicemail:
 {{ voicemail_number|national_format }}

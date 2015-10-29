@@ -1,0 +1,5 @@
+Pleased to meet you, {{ mailbox.name }}!
+
+When someone tries to leave you a voicemail, I'll ask them to send a text or email instead.
+
+What's your email address?

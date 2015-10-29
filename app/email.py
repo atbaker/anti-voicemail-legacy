@@ -22,7 +22,7 @@ def send_email(voicemail):
 
     message = Message(subject,
                       sender=app.config['MAIL_SENDER'],
-                      recipients=[app.config['MAIL_USERNAME']])
+                      recipients=[voicemail.mailbox.email])
     message.body = render_template('notifications/new_voicemail.txt', voicemail=voicemail)
     message.html = render_template('notifications/new_voicemail.html', voicemail=voicemail)
 
