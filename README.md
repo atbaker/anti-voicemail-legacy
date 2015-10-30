@@ -22,17 +22,16 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Validate email field using WTF
+- Add note about how callback URLs are already set up
+- Refactor onboarding
 - Make help menu
 - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
 - Nicer try/except block on import if possible
-- Refactor onboarding
 - Maybe use forms even though we're accepting data from Twilio
-- Integrate QR code into setup workflow
 - Put a Gather in before non-mobile numbers are allowed to leave a voicemail
 - Write tests
 - Maybe restructure views.py
-- Nicer template for listening to voicemail
+- Nicer template for listening to voicemail (+ download link)
 
 Maybe:
     - Ask for pronoun preference in setup?
@@ -52,3 +51,5 @@ DONE:
     - Add config image to TwimL responses
     - Config image import
     - See if we can remove PHONE_NUMBER from environment variables
+    - Validate email field using WTF
+    - Automatically configure callbacks to ease setup

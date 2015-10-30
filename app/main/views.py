@@ -7,11 +7,15 @@ from . import main
 from .forms import EmailForm
 from .. import db
 from ..models import Mailbox, Voicemail
-from ..utils import get_twilio_rest_client, lookup_number
+from ..utils import get_twilio_rest_client, lookup_number, set_twilio_number_urls
 
 
 @main.route('/')
 def index():
+    # While we're rendering the homepage, do the user a favor and configure
+    # their Twilio phone number callback URLs for them (if they haven't already)
+    set_twilio_number_urls()
+
     return render_template('index.html', twilio_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
 @main.route('/voicemail', methods=['POST'])
@@ -97,7 +101,7 @@ def view_recording(recording_sid):
     return render_template('recording.html', recording_url=mp3_url)
 
 @main.route('/sms', methods=['POST'])
-def sms_message():
+def incoming_sms():
     """Receives an SMS message from a number"""
     resp = twiml.Response()
     from_number = request.form['From']
@@ -174,3 +178,23 @@ def config_image():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/png')
+
+@main.route('/voice-error', methods=['POST'])
+def voice_error():
+    """
+    Used for our Twilio number's voice fallback URL. Provides a nicer error
+    message when something goes wrong on a call
+    """
+    resp = twiml.Response()
+    resp.say(render_template('voice_error.txt'))
+    return str(resp)
+
+@main.route('/sms-error', methods=['POST'])
+def sms_error():
+    """
+    Used for our Twilio number's SMS fallback URL. Provides a nicer error
+    message when something goes wrong when processing a text message
+    """
+    resp = twiml.Response()
+    resp.message(render_template('sms_error.txt'))
+    return str(resp)
