@@ -1,4 +1,4 @@
-from flask import current_app, send_file, url_for, render_template, request
+from flask import current_app, send_file, url_for, redirect, render_template, request
 from flask_mail import Message
 from io import BytesIO
 from twilio import twiml
@@ -18,44 +18,66 @@ def index():
 
     return render_template('index.html', twilio_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
-@main.route('/voicemail', methods=['POST'])
+@main.route('/call', methods=['POST'])
 def incoming_call():
-    """Ugh... someone wants to leave a voicemail..."""
+    """
+    Receives incoming calls to our Twilio number, including calls that our
+    user's carrier forwarded to our Twilio number
+    """
+    # If this call was directly to our Anti-Voicemail number, send them to the
+    # voicemail view
+    if 'ForwardedFrom' not in request.form:
+        return redirect(url_for('main.voicemail'))
+
     resp = twiml.Response()
 
     # Get our mailbox (if it's configured)
     mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
 
-    # Check if this call was forwarded from our main phone or was direct
-    # to our Twilio number
-    if 'ForwardedFrom' in request.form:
+    if mailbox is None or not mailbox.email:
+        # This mailbox doesn't exist / isn't configured: end the call
+        resp.say('This phone number cannot receive voicemails right now. Goodbye')
+        return str(resp)
 
-        if mailbox is None or not mailbox.email:
-            # This mailbox doesn't exist / isn't configured: end the call
-            resp.say('This phone number cannot receive voicemails right now. Goodbye')
-            return str(resp)
+    resp.say('{0} is unable to answer the phone. The best way to \
+        reach them is by text message or email.'.format(mailbox.name))
 
-        resp.say('{0} is unable to answer the phone. The best way to \
-            reach them is by text message or email.'.format(mailbox.name))
+    # Look up what type of phone the caller is using
+    caller = request.form['From']
+    caller_info = lookup_number(caller)
 
-        # Look up what type of phone the caller is using
-        caller = request.form['From']
-        caller_info = lookup_number(caller)
+    # If we think the caller is on a mobile phone, send them a text message
+    # with our user's contact info
+    if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
+        resp.say("I am sending you a text message with {0}'s phone number, \
+            email address, and voicemail number. Thank you.".format(mailbox.name))
+        mailbox.send_contact_info(caller)
+        return str(resp)
 
-        # If the caller is on a mobile phone, offer to send them a text message
-        # with a phone number and email address
-        # (also check that the carrier has a name so we're extra sure they
-        # can receive text messages)
-        if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
-            resp.say("I am sending you a text message with {0}'s phone number, \
-                email address, and voicemail number. Thank you.".format(mailbox.name))
-            mailbox.send_contact_info(caller)
-            return str(resp)
-        else:
-            contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
-            resp.say(contact_info)
+    contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
+    resp.say(contact_info)
 
-    # Begrudgingly let them leave a voicemail
+    # Ask the caller if they *really* need to leave a voicemail
+    resp.pause(length=1)
+    with resp.gather(numDigits=1, action=url_for('main.voicemail')) as g:
+        g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name))
+
+    # Hang up if they don't enter any digits
+    resp.say('Thank you for calling. Goodbye.')
+
+    return str(resp)
+
+@main.route('/voicemail', methods=['GET', 'POST'])
+def voicemail():
+    """Ugh... someone wants to leave a voicemail."""
+    resp = twiml.Response()
+
+    # If a Digits attribute is present, make sure it's a value of 1
+    if 'Digits' in request.form and request.form['Digits'] != '1':
+        resp.say('Thank you for not leaving a voicemail. Goodbye.')
+        return str(resp)
+
+    # Otherwise, begrudgingly let them leave a voicemail
     resp.say('You may now leave a message after the beep.')
 
     # Record and transcribe their message
