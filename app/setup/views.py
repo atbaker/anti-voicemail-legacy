@@ -1,4 +1,4 @@
-from flask import current_app, send_file, render_template, request
+from flask import current_app, redirect, render_template, request, send_file, url_for
 from io import BytesIO
 from twilio import twiml
 
@@ -20,16 +20,12 @@ def index():
 @setup.route('/sms', methods=['POST'])
 def incoming_sms():
     """Receives an SMS message from a number"""
+    # Redirect to the import_config view if this message has an image attached
+    if 'MediaUrl0' in request.form:
+        return redirect(url_for('setup.import_config'))
+
     resp = twiml.Response()
     from_number = request.form['From']
-
-    # If the message has an image, assume this is a user trying to restore
-    # their settings
-    media_url = request.form.get('MediaUrl0')
-    if media_url is not None:
-        result = Mailbox.import_config_image(media_url)
-        resp.message(result)
-        return str(resp)
 
     # See if we have a Mailbox for this number
     mailbox = Mailbox.query.filter_by(phone_number=from_number).first()
@@ -95,6 +91,25 @@ def config_image():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/png')
+
+@setup.route('/import-config', methods=['POST'])
+def import_config():
+    """Processes a config image that the user has sent us"""
+    # First see if we have an existing mailbox
+    mailbox = Mailbox.query.first()
+
+    # If we *do* have an existing mailbox, ignore the upload
+    # unless it's from the same phone_number (to prevent abuse)
+    if mailbox is not None and mailbox.phone_number != request.form['From']:
+        return ('', 204)
+
+    # Otherwise, attempt to import the config image
+    resp = twiml.Response()
+
+    result = Mailbox.import_config_image(request.form['MediaUrl0'])
+    resp.message(result)
+
+    return str(resp)
 
 @setup.route('/voice-error', methods=['POST'])
 def voice_error():

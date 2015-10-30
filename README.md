@@ -22,15 +22,13 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Refactor into smaller apps
 - Refactor onboarding
 - Make help menu
-- Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
-- Nicer try/except block on import if possible
 - Maybe use forms even though we're accepting data from Twilio
-- Write tests
-- Maybe restructure views.py
 - Nicer template for listening to voicemail (+ download link)
+- Write tests
+- Set up CI
+- Fix up README
 
 Maybe:
     - Ask for pronoun preference in setup?
@@ -54,3 +52,5 @@ DONE:
     - Automatically configure callbacks to ease setup
     - Add note about how callback URLs are already set up
     - Put a Gather in before non-mobile numbers are allowed to leave a voicemail
+    - Refactor into smaller apps
+    - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
