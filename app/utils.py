@@ -44,15 +44,15 @@ def set_twilio_number_urls():
 
     # Set the URLs only if they're blank (don't override any existing config)
     if not twilio_number.voice_url:
-        update_kwargs['voice_url'] = url_for('main.incoming_call', _external=True)
+        update_kwargs['voice_url'] = url_for('voice.incoming_call', _external=True)
     if not twilio_number.sms_url:
-        update_kwargs['sms_url'] = url_for('main.incoming_sms', _external=True)
+        update_kwargs['sms_url'] = url_for('setup.incoming_sms', _external=True)
 
     # Also set the fallback urls
     if not twilio_number.voice_fallback_url:
-        update_kwargs['voice_fallback_url'] = url_for('main.voice_error', _external=True)
+        update_kwargs['voice_fallback_url'] = url_for('setup.voice_error', _external=True)
     if not twilio_number.sms_fallback_url:
-        update_kwargs['sms_fallback_url'] = url_for('main.sms_error', _external=True)
+        update_kwargs['sms_fallback_url'] = url_for('setup.sms_error', _external=True)
 
     # If we added any kwargs to our dict, update those properties on the number
     twilio_number.update(**update_kwargs)

@@ -20,8 +20,11 @@ def create_app(config_name):
     mail.init_app(app)
     db.init_app(app)
 
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
+    from .setup import setup as setup_blueprint
+    app.register_blueprint(setup_blueprint)
+
+    from .voice import voice as voice_blueprint
+    app.register_blueprint(voice_blueprint)
 
     # Register our custom template filter
     app.jinja_env.filters['national_format'] = convert_to_national_format

@@ -38,6 +38,7 @@ class Mailbox(db.Model):
         self.phone_number = phone_number
         self.carrier = carrier
         self.name = name
+        self.email = email
         self.call_forwarding_set = call_forwarding_set
 
     def __repr__(self):
@@ -64,7 +65,7 @@ class Mailbox(db.Model):
 
         # Send contact info for our user to our caller
         contact_info = render_template(
-            'contact_info.txt', mailbox=self, from_user=from_user,
+            'voice/contact_info.txt', mailbox=self, from_user=from_user,
             voicemail_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
         client = get_twilio_rest_client()
@@ -106,7 +107,7 @@ class Mailbox(db.Model):
             body=body,
             to=self.phone_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER'],
-            media_url=url_for('main.config_image', _external=True)
+            media_url=url_for('setup.config_image', _external=True)
         )
 
     @classmethod

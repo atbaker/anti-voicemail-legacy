@@ -1,0 +1,112 @@
+from flask import redirect, render_template, request, url_for
+from twilio import twiml
+
+from . import voice
+from .. import db
+from ..models import Mailbox, Voicemail
+from ..utils import get_twilio_rest_client, lookup_number
+
+
+@voice.route('/call', methods=['POST'])
+def incoming_call():
+    """
+    Receives incoming calls to our Twilio number, including calls that our
+    user's carrier forwarded to our Twilio number
+    """
+    # If this call was directly to our Anti-Voicemail number, send them to the
+    # voicemail view
+    if 'ForwardedFrom' not in request.form:
+        return redirect(url_for('voice.record'))
+
+    resp = twiml.Response()
+
+    # Get our mailbox (if it's configured)
+    mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
+
+    if mailbox is None or not mailbox.email:
+        # This mailbox doesn't exist / isn't configured: end the call
+        resp.say('This phone number cannot receive voicemails right now. Goodbye')
+        return str(resp)
+
+    resp.say('{0} is unable to answer the phone. The best way to \
+        reach them is by text message or email.'.format(mailbox.name))
+
+    # Look up what type of phone the caller is using
+    caller = request.form['From']
+    caller_info = lookup_number(caller)
+
+    # If we think the caller is on a mobile phone, send them a text message
+    # with our user's contact info
+    if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
+        resp.say("I am sending you a text message with {0}'s phone number, \
+            email address, and voicemail number. Thank you.".format(mailbox.name))
+        mailbox.send_contact_info(caller)
+        return str(resp)
+
+    contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
+    resp.say(contact_info)
+
+    # Ask the caller if they *really* need to leave a voicemail
+    resp.pause(length=1)
+    with resp.gather(numDigits=1, action=url_for('voice.record')) as g:
+        g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name))
+
+    # Hang up if they don't enter any digits
+    resp.say('Thank you for calling. Goodbye.')
+
+    return str(resp)
+
+@voice.route('/record', methods=['GET', 'POST'])
+def record():
+    """Ugh... someone wants to leave a voicemail."""
+    resp = twiml.Response()
+
+    # If a Digits attribute is present, make sure it's a value of 1
+    if 'Digits' in request.form and request.form['Digits'] != '1':
+        resp.say('Thank you for not leaving a voicemail. Goodbye.')
+        return str(resp)
+
+    # Otherwise, begrudgingly let them leave a voicemail
+    resp.say('You may now leave a message after the beep.')
+
+    # Record and transcribe their message
+    resp.record(action=url_for('voice.hang_up'), transcribe=True,
+                transcribeCallback=url_for('voice.send_notification'))
+
+    return str(resp)
+
+@voice.route('/hang-up', methods=['POST'])
+def hang_up():
+    """
+    Ends a call.
+    """
+    resp = twiml.Response()
+
+    resp.say('Your message has been recorded. Goodbye.')
+    resp.hangup()
+
+    return str(resp)
+
+@voice.route('/send-notification', methods=['POST'])
+def send_notification():
+    """Receives a transcribed voicemail from Twilio and sends an email"""
+    # Create a new Voicemail from the POST data
+    voicemail = Voicemail(request.form['From'],
+                              request.form.get('TranscriptionText', '(transcription failed)'),
+                              request.form['RecordingSid'])
+
+    voicemail.send_notification()
+
+    # Be a nice web server and tell Twilio we're all done
+    return ('', 204)
+
+@voice.route('/recording/<recording_sid>')
+def view_recording(recording_sid):
+    """A small web page for listening to a recording"""
+    # Retrieve the recording metadata from Twilio
+    client = get_twilio_rest_client()
+    recording = client.recordings.get(recording_sid)
+
+    mp3_url = recording.formats['mp3']
+
+    return render_template('voice/recording.html', recording_url=mp3_url)

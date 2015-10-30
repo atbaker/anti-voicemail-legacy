@@ -4,4 +4,4 @@ Transcription:
 {{ voicemail.transcription }}
 
 Recording:
-{{ url_for('main.view_recording', recording_sid=voicemail.recording_sid, _external=True) }}
+{{ url_for('voice.view_recording', recording_sid=voicemail.recording_sid, _external=True) }}
