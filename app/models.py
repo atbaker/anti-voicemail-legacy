@@ -26,8 +26,10 @@ class Mailbox(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
+    feelings_on_qr_codes = db.Column(db.String(15))
 
-    def __init__(self, phone_number, id=None, carrier=None, name=None, email=None, call_forwarding_set=None):
+    def __init__(self, phone_number, id=None, carrier=None, name=None,
+                 email=None, call_forwarding_set=None, feelings_on_qr_codes=None):
         # Get the carrier if none was provided
         if carrier is None:
             # Look up the carrier
@@ -40,6 +42,7 @@ class Mailbox(db.Model):
         self.name = name
         self.email = email
         self.call_forwarding_set = call_forwarding_set
+        self.feelings_on_qr_codes = feelings_on_qr_codes
 
     def __repr__(self):
         return '<Mailbox %r>' % self.phone_number
@@ -81,7 +84,14 @@ class Mailbox(db.Model):
             self.call_forwarding_set = True
             db.session.add(self)
 
-            self.send_config_image()
+            # Now ask them the big question
+            the_question = render_template('setup/ask_qr_codes.txt')
+
+            client.messages.create(
+                body=the_question,
+                to=caller_number,
+                from_=current_app.config['TWILIO_PHONE_NUMBER']
+            )
 
     def generate_config_image(self):
         """Generate a QR code which represents this Mailbox"""
@@ -100,7 +110,7 @@ class Mailbox(db.Model):
         Sends a QR code image to our user which contains the configuration for
         this Mailbox
         """
-        body = render_template('setup/config_image.txt')
+        body = render_template('setup/complete.txt')
 
         client = get_twilio_rest_client()
         client.messages.create(
@@ -135,7 +145,6 @@ class Mailbox(db.Model):
 
             # Save the new Mailbox
             db.session.add(mailbox)
-            db.session.commit()
 
             # It worked! Let our user know they're good to go
             return render_template('setup/restore_config.txt', mailbox=mailbox)

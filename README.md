@@ -22,7 +22,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Refactor onboarding
 - Make help menu
 - Maybe use forms even though we're accepting data from Twilio
 - Nicer template for listening to voicemail (+ download link)
@@ -54,3 +53,5 @@ DONE:
     - Put a Gather in before non-mobile numbers are allowed to leave a voicemail
     - Refactor into smaller apps
     - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
+    - Refactor onboarding
+    - Add step asking about QR Codes to make UX better

@@ -7,4 +7,6 @@ Phone number: {{ mailbox.phone_number|national_format }}
 Carrier: {{ mailbox.carrier }}
 Email: {{ mailbox.email }}
 
+And you *{{ mailbox.feelings_on_qr_codes }}* QR codes
+
 Can you try leaving yourself a voicemail again to make sure I'm working correctly?

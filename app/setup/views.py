@@ -44,14 +44,26 @@ def incoming_sms():
         # Ask the user for their name
         resp.message(render_template('setup/ask_name.txt'))
 
-    elif not mailbox.name:
+    else:
+        # Assume this message is an answer to a setup question and process it
+        # accordingly
+        reply = _process_answer(mailbox)
+        resp.message(reply)
+
+    return str(resp)
+
+def _process_answer(mailbox):
+    """A helper function to process answers to the setup questions"""
+    reply = None
+
+    if not mailbox.name:
         # If we have a mailbox but don't have a name, assume this message
         # contains the user's name
         mailbox.name = request.form['Body']
         db.session.add(mailbox)
 
         # Ask the user for their email address
-        resp.message(render_template('setup/ask_email.txt', mailbox=mailbox))
+        reply = render_template('setup/ask_email.txt', mailbox=mailbox)
 
     elif not mailbox.email:
         # If we have a name but not an email adddress, assume this message
@@ -63,20 +75,40 @@ def incoming_sms():
             db.session.add(mailbox)
 
             # Tell the user how to set up conditional call forwarding
-            resp.message(render_template('setup/call_forwarding.txt', mailbox=mailbox))
+            reply = render_template('setup/call_forwarding.txt', mailbox=mailbox)
         else:
-            resp.message(render_template('setup/email_retry.txt'))
+            reply = render_template('setup/retry_email.txt')
 
     elif not mailbox.call_forwarding_set:
         # Remind the user how to set up call forwarding
-        resp.message(render_template('setup/call_forwarding_retry.txt', mailbox=mailbox))
+        reply = render_template('setup/call_forwarding_retry.txt', mailbox=mailbox)
+
+    elif not mailbox.feelings_on_qr_codes:
+        # Most input will probably be something like yes/yeah/yea or no/nope/naw
+        # so we'll try taking the first character
+        answer = request.form['Body'][0].lower()
+
+        if answer == 'y':
+            mailbox.feelings_on_qr_codes = 'like'
+            db.session.add(mailbox)
+            reply = render_template('setup/likes_qr_codes.txt')
+
+            # Our user likes QR codes, so we'll send them the config image
+            mailbox.send_config_image()
+        elif answer == 'n':
+            mailbox.feelings_on_qr_codes = 'hate'
+            db.session.add(mailbox)
+
+            reply = render_template('setup/hates_qr_codes.txt')
+        else:
+            reply = render_template('setup/retry_qr_codes.txt')
 
     else:
         # We have no idea why the user is texting us and would prefer it if
         # they left us alone
-        resp.message(render_template('setup/no_idea.txt', mailbox=mailbox))
+        reply = render_template('setup/no_idea.txt', mailbox=mailbox)
 
-    return str(resp)
+    return reply
 
 @setup.route('/config-image')
 def config_image():

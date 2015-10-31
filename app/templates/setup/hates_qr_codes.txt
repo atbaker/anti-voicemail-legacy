@@ -1,0 +1,3 @@
+Oh... yeah... they're totally dumb and like, for nerds and stuff.
+
+{% include 'setup/complete.txt' %}
