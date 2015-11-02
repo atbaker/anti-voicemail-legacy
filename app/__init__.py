@@ -6,7 +6,6 @@ from config import config
 from .utils import convert_to_national_format
 
 bootstrap = Bootstrap()
-mail = Mail()
 db = SQLAlchemy()
 
 
