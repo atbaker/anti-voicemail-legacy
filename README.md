@@ -58,3 +58,4 @@ DONE:
     - Refactor onboarding
     - Add step asking about QR Codes to make UX better
     - Make help menu (kept it simple)
+    - ADD AN EASTER EGG

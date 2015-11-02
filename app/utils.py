@@ -56,3 +56,16 @@ def set_twilio_number_urls():
 
     # If we added any kwargs to our dict, update those properties on the number
     twilio_number.update(**update_kwargs)
+
+def exit_quote():
+    """Sends an inspirational quote to the user when the server is stopped"""
+    gruber = """
+    And when Alexander saw the breadth of his domain,
+        he wept for there were no more worlds to conquer.
+                                —Hans Gruber (1988)"""
+
+    # Don't use real logging because we *always* want the user to see it
+    print(gruber)
+
+import atexit
+atexit.register(exit_quote)
