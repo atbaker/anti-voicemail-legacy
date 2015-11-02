@@ -22,9 +22,8 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Maybe use forms even though we're accepting data from Twilio
 - Nicer template for listening to voicemail (+ download link)
-- Write tests
+- Write MOAR tests
 - Set up CI
 - Dockerize?
 - Fix up README
@@ -59,3 +58,5 @@ DONE:
     - Add step asking about QR Codes to make UX better
     - Make help menu (kept it simple)
     - ADD AN EASTER EGG
+    - Take out email notifications
+    - Write tests

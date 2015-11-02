@@ -11,18 +11,6 @@ class Config:
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
     TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
 
-    # Flask-Mail
-    MAIL_SERVER = 'smtp.googlemail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_SENDER = 'Anti-voicemail <no-reply@antivoicemail.com>'
-
-    # Determine which notification types have been configured
-    SMS_NOTIFICATIONS = TWILIO_PHONE_NUMBER is not None
-    EMAIL_NOTIFICATIONS = MAIL_USERNAME is not None
-
     # SQLAlchemy
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 

@@ -6,7 +6,6 @@ import qrcode
 import requests
 
 from . import db
-from .email import send_email
 from .utils import get_twilio_rest_client, lookup_number
 
 
@@ -126,12 +125,10 @@ class Mailbox(db.Model):
         Replaces any Mailbox in the database with one from
         data stored in a config image
         """
-        client = get_twilio_rest_client()
-
         try:
             # Read the QR code using api.qrserver.com
             response = requests.get('https://api.qrserver.com/v1/read-qr-code/',
-                params={'fileurl': config_image_url})
+                                    params={'fileurl': config_image_url})
 
             # Get the QR data and convert it to bytes
             serialized = response.json()[0]['symbol'][0]['data']
@@ -166,15 +163,6 @@ class Voicemail(object):
         self.mailbox = Mailbox.query.one()
 
     def send_notification(self):
-        """Notify our user that they have a new voicemail"""
-        # Send a notification for each method that's configured
-        if current_app.config['SMS_NOTIFICATIONS']:
-            self.send_sms_notification()
-
-        if current_app.config['EMAIL_NOTIFICATIONS']:
-            send_email(voicemail=self)
-
-    def send_sms_notification(self):
         """Send a SMS about a new voicemail"""
 
         body = render_template('notifications/new_voicemail.txt', voicemail=self)

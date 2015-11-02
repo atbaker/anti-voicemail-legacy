@@ -92,8 +92,8 @@ def send_notification():
     """Receives a transcribed voicemail from Twilio and sends an email"""
     # Create a new Voicemail from the POST data
     voicemail = Voicemail(request.form['From'],
-                              request.form.get('TranscriptionText', '(transcription failed)'),
-                              request.form['RecordingSid'])
+                          request.form.get('TranscriptionText', '(transcription failed)'),
+                          request.form['RecordingSid'])
 
     voicemail.send_notification()
 
