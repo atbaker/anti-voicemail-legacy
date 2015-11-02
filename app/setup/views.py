@@ -45,10 +45,24 @@ def incoming_sms():
         resp.message(render_template('setup/ask_name.txt'))
 
     else:
-        # Assume this message is an answer to a setup question and process it
-        # accordingly
-        reply = _process_answer(mailbox)
-        resp.message(reply)
+        # Check if this answer is one of our special commands
+        command = request.form['Body'].lower()
+        if command == 'disable':
+            # Send the instructions to disable Anti-Voicemail
+            resp.message(render_template('setup/disable.txt', mailbox=mailbox))
+        elif command == 'reset':
+            # Delete the existing Mailbox and begin the setup process again
+            Mailbox.query.delete()
+
+            new_mailbox = Mailbox(from_number)
+            db.session.add(new_mailbox)
+
+            resp.message(render_template('setup/ask_name.txt', reset=True))
+        else:
+            # Assume this message is an answer to a setup question and process it
+            # accordingly
+            reply = _process_answer(mailbox)
+            resp.message(reply)
 
     return str(resp)
 
@@ -98,7 +112,6 @@ def _process_answer(mailbox):
         elif answer == 'n':
             mailbox.feelings_on_qr_codes = 'hate'
             db.session.add(mailbox)
-
             reply = render_template('setup/hates_qr_codes.txt')
         else:
             reply = render_template('setup/retry_qr_codes.txt')
@@ -106,7 +119,7 @@ def _process_answer(mailbox):
     else:
         # We have no idea why the user is texting us and would prefer it if
         # they left us alone
-        reply = render_template('setup/no_idea.txt', mailbox=mailbox)
+        reply = render_template('setup/no_idea.txt')
 
     return reply
 

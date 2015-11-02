@@ -22,12 +22,14 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Make help menu
 - Maybe use forms even though we're accepting data from Twilio
 - Nicer template for listening to voicemail (+ download link)
 - Write tests
 - Set up CI
+- Dockerize?
 - Fix up README
+- Add CONTRIBUTING
+- Fill out sample issues
 
 Maybe:
     - Ask for pronoun preference in setup?
@@ -55,3 +57,4 @@ DONE:
     - Prevent config image abuse - make sure that it's coming from the Mailbox number if it exists
     - Refactor onboarding
     - Add step asking about QR Codes to make UX better
+    - Make help menu (kept it simple)

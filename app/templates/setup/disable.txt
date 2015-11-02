@@ -1,0 +1,8 @@
+To use your normal voicemail service again, dial this weird number:
+
+{{ mailbox.get_disable_code() }}
+(don't forget the star at the front!)
+
+You'll still be able to listen to your old voicemail recordings as long as my server is running.
+
+I'll never forget the good times we had. Wherever I am, I'll be rooting for you, kid. 😜
