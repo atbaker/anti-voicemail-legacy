@@ -24,6 +24,8 @@ Deploy on Heroku instantly:
 
 - Nicer template for listening to voicemail (+ download link)
 - Write MOAR tests
+- Experiment with different voices
+- Possible bug that doesn't remember whether you like or hate QR codes
 - Set up CI
 - Dockerize?
 - Fix up README

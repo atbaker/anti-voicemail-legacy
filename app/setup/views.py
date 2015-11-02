@@ -103,7 +103,7 @@ def _process_answer(mailbox):
         answer = request.form['Body'][0].lower()
 
         if answer == 'y':
-            mailbox.feelings_on_qr_codes = 'like'
+            mailbox.feelings_on_qr_codes = 'love'
             db.session.add(mailbox)
             reply = render_template('setup/likes_qr_codes.txt')
 
