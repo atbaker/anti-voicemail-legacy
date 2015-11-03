@@ -6,7 +6,7 @@ from app import create_app, db
 from app.utils import look_up_number, set_twilio_number_urls
 
 
-class MailboxTestCase(unittest.TestCase):
+class UtilsTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
@@ -70,18 +70,3 @@ class MailboxTestCase(unittest.TestCase):
 
         # Assert
         self.assertFalse(mock_number.update.called)
-
-
-
-    # def test_mailbox_init(self):
-    #     # Arrange
-    #     mock_lookup_result = MagicMock()
-    #     mock_lookup_result.carrier = {'name': 'Foo Wireless'}
-
-    #     # Act
-    #     with patch('app.models.lookup_number', return_value=mock_lookup_result):
-    #         mailbox = Mailbox('+15555555555')
-
-    #     # Assert
-    #     self.assertEqual(str(mailbox), "<Mailbox '+15555555555'>")
-    #     self.assertEqual(mailbox.carrier, 'Foo Wireless')

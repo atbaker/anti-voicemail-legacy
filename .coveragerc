@@ -6,3 +6,4 @@ branch = True
 
 omit = 
   tests/*
+  manage.py

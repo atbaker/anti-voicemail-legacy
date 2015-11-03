@@ -26,6 +26,7 @@ Deploy on Heroku instantly:
 - Write MOAR tests
 - Try it with a Trial Account
 - Tweak Easter egg
+- Figure out how reliable 'ForwardedFrom' is
 - Experiment with different voices
 - Possible bug that doesn't remember whether you like or hate QR codes
 - Set up CI
