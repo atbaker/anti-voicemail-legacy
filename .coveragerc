@@ -2,6 +2,7 @@
 
 [run]
 source = .
+branch = True
 
 omit = 
   tests/*

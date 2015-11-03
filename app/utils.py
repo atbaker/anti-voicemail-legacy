@@ -6,18 +6,15 @@ import phonenumbers
 
 
 def get_twilio_rest_client():
+    """Instantiates a Twilio REST Client"""
     client = TwilioRestClient(current_app.config['TWILIO_ACCOUNT_SID'],
                               current_app.config['TWILIO_AUTH_TOKEN'])
     return client
 
-def get_twilio_lookup_client():
-    client = TwilioLookupsClient(current_app.config['TWILIO_ACCOUNT_SID'],
-                              current_app.config['TWILIO_AUTH_TOKEN'])
-    return client
-
-def lookup_number(phone_number):
+def look_up_number(phone_number):
     """Looks up a phone number to determine if it can receive a SMS message"""
-    client = get_twilio_lookup_client()
+    client = TwilioLookupsClient(current_app.config['TWILIO_ACCOUNT_SID'],
+                                 current_app.config['TWILIO_AUTH_TOKEN'])
 
     number_info = client.phone_numbers.get(phone_number,
                                            include_carrier_info=True)
@@ -55,9 +52,10 @@ def set_twilio_number_urls():
         update_kwargs['sms_fallback_url'] = url_for('setup.sms_error', _external=True)
 
     # If we added any kwargs to our dict, update those properties on the number
-    twilio_number.update(**update_kwargs)
+    if update_kwargs:
+        twilio_number.update(**update_kwargs)
 
-def exit_quote():
+def exit_quote(): # pragma: no cover
     """Sends an inspirational quote to the user when the server is stopped"""
     gruber = """
     And when Alexander saw the breadth of his domain,

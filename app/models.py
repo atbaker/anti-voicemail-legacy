@@ -6,7 +6,7 @@ import qrcode
 import requests
 
 from . import db
-from .utils import get_twilio_rest_client, lookup_number
+from .utils import get_twilio_rest_client, look_up_number
 
 
 # Star codes (used in initial setup)
@@ -32,7 +32,7 @@ class Mailbox(db.Model):
         # Get the carrier if none was provided
         if carrier is None:
             # Look up the carrier
-            lookup_info = lookup_number(phone_number)
+            lookup_info = look_up_number(phone_number)
             carrier = lookup_info.carrier['name']
 
         self.id = id
@@ -165,7 +165,7 @@ class Voicemail(object):
     def send_notification(self):
         """Send a SMS about a new voicemail"""
 
-        body = render_template('notifications/new_voicemail.txt', voicemail=self)
+        body = render_template('voice/new_voicemail.txt', voicemail=self)
 
         # Send the text message
         client = get_twilio_rest_client()

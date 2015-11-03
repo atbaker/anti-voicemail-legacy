@@ -24,7 +24,7 @@ class MailboxTestCase(unittest.TestCase):
         mock_lookup_result.carrier = {'name': 'Foo Wireless'}
 
         # Act
-        with patch('app.models.lookup_number', return_value=mock_lookup_result):
+        with patch('app.models.look_up_number', return_value=mock_lookup_result):
             mailbox = Mailbox('+15555555555')
 
         # Assert

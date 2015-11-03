@@ -4,7 +4,7 @@ from twilio import twiml
 from . import voice
 from .. import db
 from ..models import Mailbox, Voicemail
-from ..utils import get_twilio_rest_client, lookup_number
+from ..utils import get_twilio_rest_client, look_up_number
 
 
 @voice.route('/call', methods=['POST'])
@@ -33,7 +33,7 @@ def incoming_call():
 
     # Look up what type of phone the caller is using
     caller = request.form['From']
-    caller_info = lookup_number(caller)
+    caller_info = look_up_number(caller)
 
     # If we think the caller is on a mobile phone, send them a text message
     # with our user's contact info
