@@ -61,19 +61,19 @@ def incoming_sms():
         else:
             # Assume this message is an answer to a setup question and process it
             # accordingly
-            reply = _process_answer(mailbox)
+            reply = _process_answer(request.form['Body'], mailbox)
             resp.message(reply)
 
     return str(resp)
 
-def _process_answer(mailbox):
+def _process_answer(answer, mailbox):
     """A helper function to process answers to the setup questions"""
     reply = None
 
     if not mailbox.name:
         # If we have a mailbox but don't have a name, assume this message
         # contains the user's name
-        mailbox.name = request.form['Body']
+        mailbox.name = answer
         db.session.add(mailbox)
 
         # Ask the user for their email address
@@ -82,10 +82,10 @@ def _process_answer(mailbox):
     elif not mailbox.email:
         # If we have a name but not an email adddress, assume this message
         # contains the user's email address
-        form = EmailForm(email=request.form['Body'], csrf_enabled=False)
+        form = EmailForm(email=answer, csrf_enabled=False)
 
         if form.validate():
-            mailbox.email = request.form['Body']
+            mailbox.email = answer
             db.session.add(mailbox)
 
             # Tell the user how to set up conditional call forwarding
@@ -100,7 +100,7 @@ def _process_answer(mailbox):
     elif not mailbox.feelings_on_qr_codes:
         # Most input will probably be something like yes/yeah/yea or no/nope/naw
         # so we'll try taking the first character
-        answer = request.form['Body'][0].lower()
+        answer = answer[0].lower()
 
         if answer == 'y':
             mailbox.feelings_on_qr_codes = 'love'

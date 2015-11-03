@@ -160,7 +160,6 @@ class VoicemailTestCase(unittest.TestCase):
         # Arrange
         mailbox = Mailbox('+15555555555', carrier='Foo Wireless')
         db.session.add(mailbox)
-        db.session.commit()
 
         # Act
         voicemail = Voicemail('+17777777777', 'transcription', '12345')
