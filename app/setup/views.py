@@ -20,14 +20,16 @@ def index():
 @setup.route('/sms', methods=['POST'])
 def incoming_sms():
     """Receives an SMS message from a number"""
-    # Redirect to the import_config view if this message has an image attached
-    if 'MediaUrl0' in request.form:
-        return redirect(url_for('setup.import_config'))
-
     resp = twiml.Response()
-    from_number = request.form['From']
+
+    # If this message has an image attached, attempt to import it
+    if 'MediaUrl0' in request.form:
+        reply = _import_config()
+        resp.message(reply)
+        return str(resp)
 
     # See if we have a Mailbox for this number
+    from_number = request.form['From']
     mailbox = Mailbox.query.filter_by(phone_number=from_number).first()
 
     if mailbox is None:
@@ -65,7 +67,21 @@ def incoming_sms():
             resp.message(reply)
 
     return str(resp)
-    # return Response(str(resp), mimetype='text/xml')
+
+def _import_config():
+    """Processes a config image that the user has sent us"""
+    # First see if we have an existing mailbox
+    mailbox = Mailbox.query.first()
+
+    # If we *do* have an existing mailbox, ignore the upload
+    # unless it's from the same phone_number (to prevent abuse)
+    if mailbox is not None and mailbox.phone_number != request.form['From']:
+        return ('', 204)
+
+    # Otherwise, attempt to import the config image
+    result = Mailbox.import_config_image(request.form['MediaUrl0'])
+
+    return result
 
 def _process_answer(answer, mailbox):
     """A helper function to process answers to the setup questions"""
@@ -137,25 +153,6 @@ def config_image():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/png')
-
-@setup.route('/import-config', methods=['POST'])
-def import_config():
-    """Processes a config image that the user has sent us"""
-    # First see if we have an existing mailbox
-    mailbox = Mailbox.query.first()
-
-    # If we *do* have an existing mailbox, ignore the upload
-    # unless it's from the same phone_number (to prevent abuse)
-    if mailbox is not None and mailbox.phone_number != request.form['From']:
-        return ('', 204)
-
-    # Otherwise, attempt to import the config image
-    resp = twiml.Response()
-
-    result = Mailbox.import_config_image(request.form['MediaUrl0'])
-    resp.message(result)
-
-    return str(resp)
 
 @setup.route('/voice-error', methods=['POST'])
 def voice_error():

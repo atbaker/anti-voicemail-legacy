@@ -64,18 +64,47 @@ class MailboxTestCase(unittest.TestCase):
         assert mock_client.messages.create.called
         self.assertFalse(mailbox.call_forwarding_set)
 
-    def test_send_contact_info_to_user(self):
+    def test_send_info_to_user(self):
         # Arrange
-        mailbox = Mailbox('+15555555555', name='Jane Foo', email='jane@foo.com', carrier='Foo Wireless')
+        mailbox = Mailbox('+15555555555', carrier='Foo Wireless')
         mock_client = MagicMock()
+
+        mock_thread = MagicMock()
 
         # Act
         with patch('app.models.get_twilio_rest_client', return_value=mock_client):
-            mailbox.send_contact_info('+15555555555')
+            with patch('app.models.Thread', return_value=mock_thread) as MockThread:
+                mailbox.send_contact_info('+15555555555')
 
         # Assert
-        self.assertEqual(mock_client.messages.create.call_count, 2)
+        assert mock_client.messages.create.called
         self.assertTrue(mailbox.call_forwarding_set)
+
+        body = MockThread.call_args[1]['args'][1]
+        self.assertIn('do you like QR codes?', body)
+
+        assert mock_thread.start.called
+
+    def test_send_info_to_user_restore(self):
+        # Arrange
+        mailbox = Mailbox('+15555555555', carrier='Foo Wireless', feelings_on_qr_codes='love')
+        mock_client = MagicMock()
+
+        mock_thread = MagicMock()
+
+        # Act
+        with patch('app.models.get_twilio_rest_client', return_value=mock_client):
+            with patch('app.models.Thread', return_value=mock_thread) as MockThread:
+                mailbox.send_contact_info('+15555555555')
+
+        # Assert
+        assert mock_client.messages.create.called
+        self.assertTrue(mailbox.call_forwarding_set)
+
+        body = MockThread.call_args[1]['args'][1]
+        self.assertIn('Now get on with your life!', body)
+
+        assert mock_thread.start.called
 
     def test_generate_config_image(self):
         # Arrange

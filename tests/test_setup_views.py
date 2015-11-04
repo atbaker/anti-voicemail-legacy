@@ -48,7 +48,7 @@ class SMSViewTestCase(unittest.TestCase):
         content = str(response.data)
         self.assertIn("Hi there!", content)
 
-    def test_sms_do_not_create_a_second_mailbox(self):
+    def test_sms_no_second_mailbox(self):
         # Arrange
         mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
         db.session.add(mailbox)
@@ -63,14 +63,16 @@ class SMSViewTestCase(unittest.TestCase):
 
     def test_sms_config_image(self):
         # Act
-        response = self.test_client.post('/sms', data={
+        with patch('app.setup.views._import_config', return_value='Image processed!') as mock:
+            response = self.test_client.post('/sms', data={
             'MediaUrl0': 'http://i.imgur.com/VMSuO1N.gif'})
 
         # Assert
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        mock.assert_called_once_with()
 
         content = str(response.data)
-        self.assertIn('/import-config', content)
+        self.assertIn('Image processed!', content)
 
     def test_sms_disable_command(self):
         # Arrange

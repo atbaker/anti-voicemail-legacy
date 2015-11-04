@@ -4,7 +4,7 @@ from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
 from app import create_app, db
-from app.utils import look_up_number, set_twilio_number_urls
+from app.utils import look_up_number, send_async_message, set_twilio_number_urls
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -18,6 +18,23 @@ class UtilsTestCase(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
+
+    def test_send_async_message(self):
+        # Arrange
+        mock_client = MagicMock()
+
+        # Act
+        with patch('app.utils.get_twilio_rest_client', return_value=mock_client):
+            with patch('app.utils.sleep') as mock_sleep:
+                send_async_message(self.app, 'Async foo', '+15555555555')
+
+        # Assert
+        mock_sleep.assert_called_once_with(30)
+
+        mock_client.messages.create.assert_called_once_with(
+            body='Async foo',
+            to='+15555555555',
+            from_='+19999999999')
 
     def test_look_up_number(self):
         # Arrange

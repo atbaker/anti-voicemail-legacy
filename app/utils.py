@@ -1,4 +1,5 @@
 from flask import current_app, render_template, url_for
+from time import sleep
 from twilio.rest import TwilioRestClient
 from twilio.rest.exceptions import TwilioRestException
 from twilio.rest.lookups import TwilioLookupsClient
@@ -11,6 +12,19 @@ def get_twilio_rest_client():
     client = TwilioRestClient(current_app.config['TWILIO_ACCOUNT_SID'],
                               current_app.config['TWILIO_AUTH_TOKEN'])
     return client
+
+def send_async_message(app, body, to_number, delay=30):
+    """Used to send text messages asynchronously in a Thread"""
+    # Sleep (if specified)
+    sleep(delay)
+
+    with app.app_context():
+        client = get_twilio_rest_client()
+        client.messages.create(
+            body=body,
+            to=to_number,
+            from_=current_app.config['TWILIO_PHONE_NUMBER']
+        )
 
 def look_up_number(phone_number):
     """Looks up a phone number to determine if it can receive a SMS message"""
@@ -59,7 +73,7 @@ def set_twilio_number_urls():
     if update_kwargs:
         twilio_number.update(**update_kwargs)
 
-def exit_quote(): # pragma: no cover
+def gruber_quote(): # pragma: no cover
     """Sends an inspirational quote to the user when the server is stopped"""
     gruber = """
     And when Alexander saw the breadth of his domain,
@@ -70,4 +84,6 @@ def exit_quote(): # pragma: no cover
     print(gruber)
 
 import atexit
-atexit.register(exit_quote)
+import sys
+if sys.argv[-1] == 'test': # pragma: no cover
+    atexit.register(gruber_quote)

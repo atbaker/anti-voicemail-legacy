@@ -1,4 +1,5 @@
 from flask import current_app, render_template, url_for
+from threading import Thread
 
 import json
 import phonenumbers
@@ -6,7 +7,7 @@ import qrcode
 import requests
 
 from . import db
-from .utils import get_twilio_rest_client, look_up_number
+from .utils import get_twilio_rest_client, look_up_number, send_async_message
 
 
 # Star codes (used in initial setup)
@@ -96,13 +97,16 @@ class Mailbox(db.Model):
             db.session.add(self)
 
             # Now ask them the big question
-            the_question = render_template('setup/ask_qr_codes.txt')
+            # (unless we know it already from a previous restore)
+            if not self.feelings_on_qr_codes:
+                body = render_template('setup/ask_qr_codes.txt')
+            else:
+                body = render_template('setup/complete.txt')
 
-            client.messages.create(
-                body=the_question,
-                to=caller_number,
-                from_=current_app.config['TWILIO_PHONE_NUMBER']
-            )
+            app = current_app._get_current_object()
+
+            thread = Thread(target=send_async_message, args=[app, body, caller_number])
+            thread.start()
 
     def generate_config_image(self):
         """Generate a QR code which represents this Mailbox"""
@@ -161,7 +165,6 @@ class Mailbox(db.Model):
         except Exception:
             # Something went wrong - this isn't going to work
             return "Ooops! I couldn't read that file after all. Sorry! D:"
-
 
 class Voicemail(object):
     """A simple class to represent a voicemail. Doesn't use a database"""

@@ -29,16 +29,13 @@ Deploy on Heroku instantly:
 
 - Nicer template for listening to voicemail (+ download link)
 - 100% ALL THE WAY BABY
-- Change /import-config view to a helper method
-- Add more delay on the QR code question
 - Experiment with different <Say> voices
+- Change fallback URL to static S3 buckets that I maintain
 - Send text message to user on error
 - Add note about unsupported carrier
 - Try it with a Trial Account
-- Tweak Easter egg to only display on test run
 - Figure out how reliable 'ForwardedFrom' is
 - Possible bug that doesn't remember whether you like or hate QR codes
-- Set up CI
 - Dockerize?
 - Fix up README
     - Clean up README itself
@@ -79,3 +76,7 @@ DONE:
     - Write tests
     - Write MOAR tests
     - Bug when calling Helen's phone from Google (lookup failed)
+    - Set up CI
+    - Change /import-config view to a helper method
+    - Add more delay on the QR code question
+    - Tweak Easter egg to only display on test run
