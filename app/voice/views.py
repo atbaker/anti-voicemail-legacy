@@ -37,7 +37,7 @@ def incoming_call():
 
     # If we think the caller is on a mobile phone, send them a text message
     # with our user's contact info
-    if caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
+    if caller_info and caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
         resp.say("I am sending you a text message with {0}'s phone number, \
             email address, and voicemail number. Thank you.".format(mailbox.name))
         mailbox.send_contact_info(caller)

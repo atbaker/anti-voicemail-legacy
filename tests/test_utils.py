@@ -1,5 +1,6 @@
 import unittest
 from flask import current_app
+from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
 from app import create_app, db
@@ -30,6 +31,20 @@ class UtilsTestCase(unittest.TestCase):
         # Assert
         self.assertEqual(result, 'lookup info')
         mock_client.phone_numbers.get.assert_called_once_with('+15555555555', include_carrier_info=True)
+
+    def test_look_up_number_error(self):
+        # Arrange
+        mock_client = MagicMock()
+        mock_client.phone_numbers.get.side_effect = TwilioRestException('foo', 'bar')
+
+        # Act
+        with patch('app.utils.TwilioLookupsClient', return_value=mock_client):
+            result = look_up_number('+15555555555')
+
+        # Assert
+        self.assertIsNone(result)
+        mock_client.phone_numbers.get.assert_called_once_with('+15555555555', include_carrier_info=True)
+
 
     def test_set_twilio_urls_all(self):
         # Arrange

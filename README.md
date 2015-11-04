@@ -31,15 +31,12 @@ Deploy on Heroku instantly:
 - 100% ALL THE WAY BABY
 - Change /import-config view to a helper method
 - Add more delay on the QR code question
-- Bug when calling Helen's phone from Google (lookup failed)
-- SENDING MESSAGES BASED ON \n's??!?!?!?
 - Experiment with different <Say> voices
 - Send text message to user on error
 - Add note about unsupported carrier
 - Try it with a Trial Account
 - Tweak Easter egg to only display on test run
 - Figure out how reliable 'ForwardedFrom' is
-- Experiment with different voices
 - Possible bug that doesn't remember whether you like or hate QR codes
 - Set up CI
 - Dockerize?
@@ -81,3 +78,4 @@ DONE:
     - Take out email notifications
     - Write tests
     - Write MOAR tests
+    - Bug when calling Helen's phone from Google (lookup failed)

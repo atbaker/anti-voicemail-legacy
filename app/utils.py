@@ -1,5 +1,6 @@
 from flask import current_app, render_template, url_for
 from twilio.rest import TwilioRestClient
+from twilio.rest.exceptions import TwilioRestException
 from twilio.rest.lookups import TwilioLookupsClient
 
 import phonenumbers
@@ -16,8 +17,11 @@ def look_up_number(phone_number):
     client = TwilioLookupsClient(current_app.config['TWILIO_ACCOUNT_SID'],
                                  current_app.config['TWILIO_AUTH_TOKEN'])
 
-    number_info = client.phone_numbers.get(phone_number,
-                                           include_carrier_info=True)
+    try:
+        number_info = client.phone_numbers.get(phone_number,
+                                               include_carrier_info=True)
+    except TwilioRestException:
+        number_info = None
 
     return number_info
 
