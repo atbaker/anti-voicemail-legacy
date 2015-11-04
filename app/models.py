@@ -59,6 +59,10 @@ class Mailbox(db.Model):
     def __repr__(self):
         return '<Mailbox %r>' % self.phone_number
 
+    def is_carrier_supported(self):
+        """Checks that the Mailbox's carrier is in our list of supported carriers"""
+        return self.carrier in STAR_CODES
+
     def get_call_forwarding_code(self):
         """Get the code our user should dial to enable call forwarding"""
         voicemail_number = phonenumbers.parse(current_app.config['TWILIO_PHONE_NUMBER'])

@@ -1,0 +1,5 @@
+{% include 'setup/intro.txt' %}
+
+Your phone is using {{ carrier }}, but unfortunately I don't support that carrier right now. :(
+
+You can change that, though! Go to https://github.com/atbaker/anti-voicemail and check out the README section for "Adding your carrier."

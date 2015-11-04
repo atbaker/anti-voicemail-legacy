@@ -31,10 +31,10 @@ class SMSViewTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         mock.assert_called_once_with()
 
-    def test_sms_no_mailbox(self):
+    def test_sms_no_mailbox_good_carrier(self):
         # Arrange
         mock_lookup_result = MagicMock()
-        mock_lookup_result.carrier = {'name': 'Foo Wireless'}
+        mock_lookup_result.carrier = {'name': 'Verizon Wireless'}
 
         # Act
         with patch('app.models.look_up_number', return_value=mock_lookup_result):
@@ -46,7 +46,23 @@ class SMSViewTestCase(unittest.TestCase):
         self.assertEqual(mailbox.phone_number, '+15555555555')
 
         content = str(response.data)
-        self.assertIn("Hi there!", content)
+        self.assertIn("your name", content)
+
+    def test_sms_no_mailbox_bad_carrier(self):
+        # Arrange
+        mock_lookup_result = MagicMock()
+        mock_lookup_result.carrier = {'name': 'Foo Wireless'}
+
+        # Act
+        with patch('app.models.look_up_number', return_value=mock_lookup_result):
+            response = self.test_client.post('/sms', data={'From': '+15555555555'})
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Mailbox.query.count(), 0)
+
+        content = str(response.data)
+        self.assertIn("support that carrier", content)
 
     def test_sms_no_second_mailbox(self):
         # Arrange

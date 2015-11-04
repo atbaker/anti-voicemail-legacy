@@ -41,10 +41,18 @@ def incoming_sms():
 
         # Make a mailbox for this number
         new_mailbox = Mailbox(from_number)
-        db.session.add(new_mailbox)
 
-        # Ask the user for their name
-        resp.message(render_template('setup/ask_name.txt'))
+        # Check that our new user's carrier is supported by Anti-Voicemail
+        if new_mailbox.is_carrier_supported():
+            db.session.add(new_mailbox)
+
+            # Ask the user for their name
+            reply = render_template('setup/ask_name.txt')
+        else:
+            # Their carrier is unsupported. Bummer!
+            reply = render_template('setup/unsupported_carrier.txt')
+
+        resp.message(reply)
 
     else:
         # Check if this answer is one of our special commands

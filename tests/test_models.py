@@ -31,6 +31,26 @@ class MailboxTestCase(unittest.TestCase):
         self.assertEqual(str(mailbox), "<Mailbox '+15555555555'>")
         self.assertEqual(mailbox.carrier, 'Foo Wireless')
 
+    def test_supported_carrier(self):
+        # Arrange
+        mailbox = Mailbox('+15555555555', carrier='Verizon Wireless')
+
+        # Act
+        result = mailbox.is_carrier_supported()
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_unsupported_carrier(self):
+        # Arrange
+        mailbox = Mailbox('+15555555555', carrier='Foo Wireless')
+
+        # Act
+        result = mailbox.is_carrier_supported()
+
+        # Assert
+        self.assertFalse(result)
+
     def test_get_call_forwarding_code(self):
         # Arrange
         mailbox = Mailbox('+15555555555', carrier='Verizon Wireless')
