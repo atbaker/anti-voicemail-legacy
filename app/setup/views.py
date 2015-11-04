@@ -1,4 +1,4 @@
-from flask import current_app, redirect, render_template, request, send_file, url_for
+from flask import current_app, redirect, render_template, Response, request, send_file, url_for
 from io import BytesIO
 from twilio import twiml
 
@@ -65,6 +65,7 @@ def incoming_sms():
             resp.message(reply)
 
     return str(resp)
+    # return Response(str(resp), mimetype='text/xml')
 
 def _process_answer(answer, mailbox):
     """A helper function to process answers to the setup questions"""

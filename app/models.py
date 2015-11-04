@@ -11,12 +11,24 @@ from .utils import get_twilio_rest_client, look_up_number
 
 # Star codes (used in initial setup)
 STAR_CODES = {
+    'AT&T Wireless': {
+        'enable': '*004*{0}#',
+        'disable': '##004#'
+    },
+    # Need to verify Sprint
+    # 'Sprint Spectrum, L.P.': {
+    #     'enable': '*28{0}',
+    #     'disable': '*38'
+    # },
+    'T-Mobile USA, Inc.': {
+        'enable': '*004*{0}#',
+        'disable': '##004#'
+    },
     'Verizon Wireless': {
-        'enable': '*71',
+        'enable': '*71{0}',
         'disable': '*73'
     }
 }
-
 
 class Mailbox(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,8 +61,8 @@ class Mailbox(db.Model):
     def get_call_forwarding_code(self):
         """Get the code our user should dial to enable call forwarding"""
         voicemail_number = phonenumbers.parse(current_app.config['TWILIO_PHONE_NUMBER'])
-        return '{0}{1}'.format(
-            STAR_CODES[self.carrier]['enable'], voicemail_number.national_number)
+        code = STAR_CODES[self.carrier]['enable'].format(voicemail_number.national_number)
+        return code
 
     def get_disable_code(self):
         """
