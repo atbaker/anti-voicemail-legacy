@@ -1,0 +1,11 @@
+language: python
+python:
+  - '3.4'
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
+script: coverage run manage.py test
+env:
+  - TWILIO_ACCOUNT_SID=ACXXXXXXXXXXXXXXXXX TWILIO_AUTH_TOKEN=YYYYYYYYYYYYYYYYYY TWILIO_PHONE_NUMBER=+19999999999
+after_success:
+  - coveralls
