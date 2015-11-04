@@ -1,4 +1,4 @@
-from flask import current_app, redirect, render_template, Response, request, send_file, url_for
+from flask import abort, current_app, redirect, render_template, Response, request, send_file, url_for
 from io import BytesIO
 from twilio import twiml
 
@@ -24,7 +24,7 @@ def incoming_sms():
 
     # If this message has an image attached, attempt to import it
     if 'MediaUrl0' in request.form:
-        reply = _import_config()
+        reply = _import_config(request.form['From'], request.form['MediaUrl0'])
         resp.message(reply)
         return str(resp)
 
@@ -76,18 +76,18 @@ def incoming_sms():
 
     return str(resp)
 
-def _import_config():
+def _import_config(from_number, image_url):
     """Processes a config image that the user has sent us"""
     # First see if we have an existing mailbox
     mailbox = Mailbox.query.first()
 
     # If we *do* have an existing mailbox, ignore the upload
     # unless it's from the same phone_number (to prevent abuse)
-    if mailbox is not None and mailbox.phone_number != request.form['From']:
-        return ('', 204)
+    if mailbox is not None and mailbox.phone_number != from_number:
+        abort(403)
 
     # Otherwise, attempt to import the config image
-    result = Mailbox.import_config_image(request.form['MediaUrl0'])
+    result = Mailbox.import_config_image(image_url)
 
     return result
 
@@ -151,7 +151,7 @@ def _process_answer(answer, mailbox):
 @setup.route('/config-image')
 def config_image():
     """Returns the QR Code for the mailbox"""
-    # Get our mailbox
+    # Get our mailbox and its config image
     mailbox = Mailbox.query.first_or_404()
     mailbox_data = mailbox.generate_config_image()
 
@@ -162,7 +162,7 @@ def config_image():
 
     return send_file(img_io, mimetype='image/png')
 
-@setup.route('/voice-error', methods=['POST'])
+@setup.route('/voice-error')
 def voice_error():
     """
     Used for our Twilio number's voice fallback URL. Provides a nicer error
@@ -172,7 +172,7 @@ def voice_error():
     resp.say(render_template('voice_error.txt'))
     return str(resp)
 
-@setup.route('/sms-error', methods=['POST'])
+@setup.route('/sms-error')
 def sms_error():
     """
     Used for our Twilio number's SMS fallback URL. Provides a nicer error

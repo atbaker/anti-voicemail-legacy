@@ -1,5 +1,8 @@
 # Anti-Voicemail
 
+[![Build Status](https://travis-ci.org/atbaker/anti-voicemail.svg?branch=master)](https://travis-ci.org/atbaker/anti-voicemail)
+[![Coverage Status](https://coveralls.io/repos/atbaker/anti-voicemail/badge.svg?branch=master&service=github)](https://coveralls.io/github/atbaker/anti-voicemail?branch=master)
+
 A voicemail app for people who really, really don't like receiving voicemails
 
 ## Deploy now
@@ -32,7 +35,6 @@ Deploy on Heroku instantly:
 - Experiment with different <Say> voices
 - Change fallback URL to static S3 buckets that I maintain
 - Send text message to user on error
-- Add note about unsupported carrier
 - Try it with a Trial Account
 - Figure out how reliable 'ForwardedFrom' is
 - Possible bug that doesn't remember whether you like or hate QR codes
@@ -80,3 +82,4 @@ DONE:
     - Change /import-config view to a helper method
     - Add more delay on the QR code question
     - Tweak Easter egg to only display on test run
+    - Add note about unsupported carrier
