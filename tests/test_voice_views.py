@@ -165,7 +165,15 @@ class VoiceViewsTestCase(unittest.TestCase):
 
     def test_view_recording(self):
         # Arrange
+        mock_recording = MagicMock()
+        mock_recording.call_sid = '5678'
+
+        mock_call = MagicMock()
+        mock_call.from_ = '+15555555555'
+
         mock_client = MagicMock()
+        mock_client.recordings.get.return_value = mock_recording
+        mock_client.calls.get.return_value = mock_call
 
         # Act
         with patch('app.voice.views.get_twilio_rest_client', return_value=mock_client):

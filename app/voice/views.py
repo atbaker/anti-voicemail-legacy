@@ -103,10 +103,11 @@ def send_notification():
 @voice.route('/recording/<recording_sid>')
 def view_recording(recording_sid):
     """A small web page for listening to a recording"""
-    # Retrieve the recording metadata from Twilio
+    # Retrieve the recording and transcription from Twilio
     client = get_twilio_rest_client()
+
     recording = client.recordings.get(recording_sid)
+    transcription = recording.transcriptions.list()[0].transcription_text
+    call = client.calls.get(recording.call_sid)
 
-    mp3_url = recording.formats['mp3']
-
-    return render_template('voice/recording.html', recording_url=mp3_url)
+    return render_template('voice/recording.html', recording=recording, transcription=transcription, call=call)

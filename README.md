@@ -30,11 +30,7 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Nicer template for listening to voicemail (+ download link)
-- 100% ALL THE WAY BABY
 - Experiment with different <Say> voices
-- Change fallback URL to static S3 buckets that I maintain
-- Send text message to user on error
 - Try it with a Trial Account
 - Figure out how reliable 'ForwardedFrom' is
 - Possible bug that doesn't remember whether you like or hate QR codes
@@ -83,3 +79,6 @@ DONE:
     - Add more delay on the QR code question
     - Tweak Easter egg to only display on test run
     - Add note about unsupported carrier
+    - 100% ALL THE WAY BABY
+    - Change fallback URL to static S3 buckets that I maintain
+    - Nicer template for listening to voicemail (+ download link)
