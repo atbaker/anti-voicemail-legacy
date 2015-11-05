@@ -4,7 +4,8 @@
     "keywords": [
         "python",
         "flask",
-        "Twilio"
+        "Twilio",
+        "voicemail"
     ],
     "website": "https://github.com/atbaker/anti-voicemail",
     "repository": "https://github.com/atbaker/anti-voicemail",

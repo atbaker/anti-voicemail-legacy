@@ -161,23 +161,3 @@ def config_image():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/png')
-
-@setup.route('/voice-error')
-def voice_error():
-    """
-    Used for our Twilio number's voice fallback URL. Provides a nicer error
-    message when something goes wrong on a call
-    """
-    resp = twiml.Response()
-    resp.say(render_template('voice_error.txt'))
-    return str(resp)
-
-@setup.route('/sms-error')
-def sms_error():
-    """
-    Used for our Twilio number's SMS fallback URL. Provides a nicer error
-    message when something goes wrong when processing a text message
-    """
-    resp = twiml.Response()
-    resp.message(render_template('sms_error.txt'))
-    return str(resp)

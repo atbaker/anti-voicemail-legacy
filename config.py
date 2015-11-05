@@ -11,6 +11,10 @@ class Config:
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
     TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER')
 
+    # Twilio fallback URLs
+    VOICE_FALLBACK_URL = 'http://fallback.antivoicemail.com/voice-error.xml'
+    SMS_FALLBACK_URL = 'http://fallback.antivoicemail.com/sms-error.xml'
+
     # SQLAlchemy
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 

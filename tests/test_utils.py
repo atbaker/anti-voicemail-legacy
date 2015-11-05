@@ -82,8 +82,8 @@ class UtilsTestCase(unittest.TestCase):
         mock_number.update.assert_called_once_with(
             voice_url='http://localhost/call',
             sms_url='http://localhost/sms',
-            voice_fallback_url='http://localhost/voice-error',
-            sms_fallback_url='http://localhost/sms-error')
+            voice_fallback_url=self.app.config['VOICE_FALLBACK_URL'],
+            sms_fallback_url=self.app.config['SMS_FALLBACK_URL'])
 
     def test_set_twilio_urls_none(self):
         # Arrange
