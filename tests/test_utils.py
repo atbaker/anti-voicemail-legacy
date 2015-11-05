@@ -4,7 +4,7 @@ from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
 from app import create_app, db
-from app.utils import look_up_number, send_async_message, set_twilio_number_urls
+from app.utils import look_up_number, convert_to_national_format, send_async_message, set_twilio_number_urls
 
 
 class UtilsTestCase(unittest.TestCase):
@@ -62,6 +62,12 @@ class UtilsTestCase(unittest.TestCase):
         self.assertIsNone(result)
         mock_client.phone_numbers.get.assert_called_once_with('+15555555555', include_carrier_info=True)
 
+    def test_national_format_error(self):
+        # Act
+        result = convert_to_national_format('8656696')
+
+        # Assert
+        self.assertEqual(result, '8656696')
 
     def test_set_twilio_urls_all(self):
         # Arrange

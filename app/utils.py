@@ -41,8 +41,15 @@ def look_up_number(phone_number):
 
 def convert_to_national_format(phone_number):
     """Converts an E.164 formatted number to a national format"""
-    return phonenumbers.format_number(phonenumbers.parse(phone_number),
-                                      phonenumbers.PhoneNumberFormat.NATIONAL)
+    try:
+        value = phonenumbers.format_number(
+            phonenumbers.parse(phone_number),
+            phonenumbers.PhoneNumberFormat.NATIONAL)
+
+    except phonenumbers.phonenumberutil.NumberParseException:
+        value = phone_number
+
+    return value
 
 def set_twilio_number_urls():
     """
@@ -58,10 +65,10 @@ def set_twilio_number_urls():
     update_kwargs = {}
 
     # Set the URLs only if they're blank (don't override any existing config)
-    if not twilio_number.voice_url:
+    if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
         update_kwargs['voice_url'] = url_for('voice.incoming_call', _external=True)
         update_kwargs['voice_method'] = 'POST'
-    if not twilio_number.sms_url:
+    if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
         update_kwargs['sms_url'] = url_for('setup.incoming_sms', _external=True)
         update_kwargs['sms_method'] = 'POST'
 

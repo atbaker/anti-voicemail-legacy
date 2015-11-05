@@ -20,7 +20,7 @@
   <script type="text/javascript">
     var audio = new Audio("{{ recording.formats['mp3'] }}");
 
-    var createdTime = moment("{{ recording.date_created.strftime('%Y-%m-%d %H-%M%z') }}");
+    var createdTime = moment("{{ recording.date_created.strftime('%Y-%m-%d %H:%M') }} UTC");
     document.getElementById('time').textContent = createdTime.fromNow();
   </script>
 {% endblock %}
