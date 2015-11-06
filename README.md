@@ -31,10 +31,8 @@ Deploy on Heroku instantly:
 ## To-do
 
 - Experiment with different <Say> voices
-- Try it with a Trial Account
 - Figure out how reliable 'ForwardedFrom' is
 - Possible bug that doesn't remember whether you like or hate QR codes
-- Dockerize?
 - Fix up README
     - Clean up README itself
     - Write instructions for getting started
@@ -82,3 +80,5 @@ DONE:
     - 100% ALL THE WAY BABY
     - Change fallback URL to static S3 buckets that I maintain
     - Nicer template for listening to voicemail (+ download link)
+    - Try it with a Trial Account - works for messing around - but not recommended
+    - Dockerize!
