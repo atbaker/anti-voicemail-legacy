@@ -25,11 +25,12 @@ def incoming_call():
 
     if mailbox is None or not mailbox.email:
         # This mailbox doesn't exist / isn't configured: end the call
-        resp.say('This phone number cannot receive voicemails right now. Goodbye')
+        resp.say('This phone number cannot receive voicemails right now. Goodbye', voice='alice')
         return str(resp)
 
     resp.say('{0} is unable to answer the phone. The best way to \
-        reach them is by text message or email.'.format(mailbox.name))
+        reach them is by text message or email.'.format(mailbox.name),
+        voice='alice')
 
     # Look up what type of phone the caller is using
     caller = request.form['From']
@@ -39,20 +40,22 @@ def incoming_call():
     # with our user's contact info
     if caller_info and caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
         resp.say("I am sending you a text message with {0}'s phone number, \
-            email address, and voicemail number. Thank you.".format(mailbox.name))
+            email address, and voicemail number. Thank you.".format(mailbox.name),
+            voice='alice')
         mailbox.send_contact_info(caller)
         return str(resp)
 
     contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
-    resp.say(contact_info)
+    resp.say(contact_info, voice='alice')
 
     # Ask the caller if they *really* need to leave a voicemail
     resp.pause(length=1)
     with resp.gather(numDigits=1, action=url_for('voice.record')) as g:
-        g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name))
+        g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name),
+            voice='alice')
 
     # Hang up if they don't enter any digits
-    resp.say('Thank you for calling. Goodbye.')
+    resp.say('Thank you for calling. Goodbye.', voice='alice')
 
     return str(resp)
 
@@ -63,11 +66,11 @@ def record():
 
     # If a Digits attribute is present, make sure it's a value of 1
     if 'Digits' in request.form and request.form['Digits'] != '1':
-        resp.say('Thank you for not leaving a voicemail. Goodbye.')
+        resp.say('Thank you for not leaving a voicemail. Goodbye.', voice='alice')
         return str(resp)
 
     # Otherwise, begrudgingly let them leave a voicemail
-    resp.say('You may now leave a message after the beep.')
+    resp.say('You may now leave a message after the beep.', voice='alice')
 
     # Record and transcribe their message
     resp.record(action=url_for('voice.hang_up'), transcribe=True,
@@ -82,7 +85,7 @@ def hang_up():
     """
     resp = twiml.Response()
 
-    resp.say('Your message has been recorded. Goodbye.')
+    resp.say('Your message has been recorded. Goodbye.', voice='alice')
     resp.hangup()
 
     return str(resp)

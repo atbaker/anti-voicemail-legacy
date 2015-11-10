@@ -30,8 +30,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Experiment with different <Say> voices
-- Figure out how reliable 'ForwardedFrom' is
 - Possible bug that doesn't remember whether you like or hate QR codes
 - Fix up README
     - Clean up README itself
@@ -39,6 +37,7 @@ Deploy on Heroku instantly:
     - Write instructions on how to add your carrier
 - Add CONTRIBUTING
 - Fill out sample issues
+- PEP8 this biz
 
 Maybe:
     - Ask for pronoun preference in setup?
@@ -82,3 +81,5 @@ DONE:
     - Nicer template for listening to voicemail (+ download link)
     - Try it with a Trial Account - works for messing around - but not recommended
     - Dockerize!
+    - Figure out how reliable 'ForwardedFrom' is (Carrier-specific, unfortunately)
+    - Experiment with different <Say> voices
