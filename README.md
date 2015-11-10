@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/atbaker/anti-voicemail.svg?branch=master)](https://travis-ci.org/atbaker/anti-voicemail)
 [![Coverage Status](https://coveralls.io/repos/atbaker/anti-voicemail/badge.svg?branch=master&service=github)](https://coveralls.io/github/atbaker/anti-voicemail?branch=master)
 
-A voicemail app for people who really, really don't like receiving voicemails
+A voicemail app for people who really, really don't like receiving voicemails.
 
 ## Deploy now
 
@@ -30,7 +30,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Possible bug that doesn't remember whether you like or hate QR codes
 - Fix up README
     - Clean up README itself
     - Write instructions for getting started
@@ -49,6 +48,7 @@ Follow ups:
     - Calling Twilio Number directly: Remember a previous call
 
 DONE:
+
     - Model for Mailbox stored locally in SQLite
     - SMS-based setup workflow
     - Add carrier voicemail code to final setup step
@@ -83,3 +83,4 @@ DONE:
     - Dockerize!
     - Figure out how reliable 'ForwardedFrom' is (Carrier-specific, unfortunately)
     - Experiment with different <Say> voices
+    - Possible bug that doesn't remember whether you like or hate QR codes
