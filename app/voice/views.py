@@ -27,6 +27,9 @@ def incoming_call():
         # This mailbox doesn't exist / isn't configured: end the call
         resp.say('This phone number cannot receive voicemails right now. Goodbye', voice='alice')
         return str(resp)
+    elif request.form['From'] in mailbox.whitelist:
+        # If the caller is on our whitelist, send them to the record view
+        return redirect(url_for('voice.record'))
 
     resp.say('{0} is unable to answer the phone. The best way to \
         reach them is by text message or email.'.format(mailbox.name),

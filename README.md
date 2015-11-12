@@ -30,10 +30,14 @@ Deploy on Heroku instantly:
 
 ## To-do
 
+- Rename templates to have more managable naming convention
+- Flatten migrations
+- Make favicon
 - Fix up README
     - Clean up README itself
     - Write instructions for getting started
     - Write instructions on how to add your carrier
+- Register anti-voicemail.com
 - Add CONTRIBUTING
 - Fill out sample issues
 - PEP8 this biz
@@ -84,3 +88,5 @@ DONE:
     - Figure out how reliable 'ForwardedFrom' is (Carrier-specific, unfortunately)
     - Experiment with different <Say> voices
     - Possible bug that doesn't remember whether you like or hate QR codes
+    - Whitelist
+    - Maybe break command part into separate method

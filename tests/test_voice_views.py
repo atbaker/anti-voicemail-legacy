@@ -88,6 +88,27 @@ class VoiceViewsTestCase(unittest.TestCase):
         content = str(response.data)
         self.assertIn('/record', content)
 
+    def test_call_caller_in_whitelist(self):
+        # Arrange
+        mailbox = Mailbox(
+            phone_number='+15555555555',
+            carrier='Foo Wireless',
+            name='Jane Foo',
+            email='jane@foo.com',
+            whitelist=['+17777777777'])
+        db.session.add(mailbox)
+
+        # Act
+        response = self.test_client.post('/call', data={
+            'ForwardedFrom': '+15555555555',
+            'From': '+17777777777'})
+
+        # Assert
+        self.assertEqual(response.status_code, 302)
+
+        content = str(response.data)
+        self.assertIn('/record', content)
+
     def test_call_no_mailbox(self):
         # Act
         response = self.test_client.post('/call', data={

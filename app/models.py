@@ -39,9 +39,11 @@ class Mailbox(db.Model):
     email = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
     feelings_on_qr_codes = db.Column(db.String(15))
+    whitelist = db.Column(db.PickleType())
 
     def __init__(self, phone_number, id=None, carrier=None, name=None,
-                 email=None, call_forwarding_set=None, feelings_on_qr_codes=None):
+                 email=None, call_forwarding_set=None, feelings_on_qr_codes=None,
+                 whitelist=None):
         # Get the carrier if none was provided
         if carrier is None:
             # Look up the carrier
@@ -55,6 +57,12 @@ class Mailbox(db.Model):
         self.email = email
         self.call_forwarding_set = call_forwarding_set
         self.feelings_on_qr_codes = feelings_on_qr_codes
+
+        # Necessary to avoid using an empty list as the default argument
+        if whitelist is None:
+            self.whitelist = set()
+        else:
+            self.whitelist = set(whitelist)
 
     def __repr__(self):
         return '<Mailbox %r>' % self.phone_number
@@ -76,6 +84,11 @@ class Mailbox(db.Model):
         See: https://www.youtube.com/watch?v=wagkBedzwI8
         """
         return STAR_CODES[self.carrier]['disable']
+
+    def get_region_code(self):
+        """Returns the phonenumbers region code for this Mailbox's number"""
+        parsed_number = phonenumbers.parse(self.phone_number)
+        return phonenumbers.region_code_for_country_code(parsed_number.country_code)
 
     def send_contact_info(self, caller_number):
         """Sends a caller some text and email information for this mailbox"""
@@ -117,6 +130,7 @@ class Mailbox(db.Model):
         # Serialize this Mailbox
         mailbox_dict = self.__dict__.copy()
         mailbox_dict['call_forwarding_set'] = False
+        mailbox_dict['whitelist'] = list(self.whitelist)
         del mailbox_dict['_sa_instance_state']
 
         mailbox_json = json.dumps(mailbox_dict)

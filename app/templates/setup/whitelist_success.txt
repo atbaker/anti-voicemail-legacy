@@ -1,0 +1,6 @@
+Got it! I'll always allow calls from {{ new_number|national_format }} to leave you voicemails.
+{% if whitelist|length > 1 %}
+For reference, here are all the numbers in your whitelist:
+{% for phone_number in whitelist %}
+{{ phone_number|national_format }}{% endfor %}
+{% endif %}

@@ -30,6 +30,21 @@ class MailboxTestCase(unittest.TestCase):
         # Assert
         self.assertEqual(str(mailbox), "<Mailbox '+15555555555'>")
         self.assertEqual(mailbox.carrier, 'Foo Wireless')
+        self.assertEqual(mailbox.whitelist, set())
+
+    def test_mailbox_init_whitelist(self):
+        # Arrange
+        mock_lookup_result = MagicMock()
+        mock_lookup_result.carrier = {'name': 'Foo Wireless'}
+
+        # Act
+        with patch('app.models.look_up_number', return_value=mock_lookup_result):
+            mailbox = Mailbox('+15555555555', whitelist=['+17777777777'])
+
+        # Assert
+        self.assertEqual(str(mailbox), "<Mailbox '+15555555555'>")
+        self.assertEqual(mailbox.carrier, 'Foo Wireless')
+        self.assertEqual(mailbox.whitelist, set(['+17777777777']))
 
     def test_supported_carrier(self):
         # Arrange
@@ -70,6 +85,16 @@ class MailboxTestCase(unittest.TestCase):
 
         # Assert
         self.assertEqual(disable_code, '*73')
+
+    def test_get_region_code(self):
+        # Arrange
+        mailbox = Mailbox('+15555555555', carrier='Verizon Wireless')
+
+        # Act
+        region_code = mailbox.get_region_code()
+
+        # Assert
+        self.assertEqual(region_code, 'US')
 
     def test_send_contact_info(self):
         # Arrange

@@ -6,6 +6,9 @@ class Config:
     # Secret key
     SECRET_KEY = os.environ.get('SECRET_KEY')
 
+    # Anti-Voicemail
+    ANTI_VOICEMAIL_COMMANDS = ('disable', 'whitelist', 'reset')
+
     # Twilio credentials
     TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
     TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from app import create_app, db
 from app.models import Mailbox, Voicemail
-from app.setup.views import _import_config, _process_answer
+from app.setup.views import _import_config, _process_command, _process_answer
 
 
 class SMSViewTestCase(unittest.TestCase):
@@ -92,46 +92,23 @@ class SMSViewTestCase(unittest.TestCase):
         content = str(response.data)
         self.assertIn('Image processed!', content)
 
-    def test_sms_disable_command(self):
-        # Arrange
-        mailbox = Mailbox(phone_number='+15555555555', carrier='Verizon Wireless')
-        db.session.add(mailbox)
-
-        # Act
-        response = self.test_client.post('/sms', data={
-            'From': '+15555555555',
-            'Body': 'disable'})
-
-        # Assert
-        self.assertEqual(response.status_code, 200)
-
-        content = str(response.data)
-        self.assertIn('*73', content)
-
-    def test_sms_reset_command(self):
+    def test_sms_process_command(self):
         # Arrange
         mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
         db.session.add(mailbox)
 
-        # Arrange
-        mock_lookup_result = MagicMock()
-        mock_lookup_result.carrier = {'name': 'Bar Wireless'}
-
         # Act
-        with patch('app.models.look_up_number', return_value=mock_lookup_result):
+        with patch('app.setup.views._process_command', return_value='Command processed!') as mock:
             response = self.test_client.post('/sms', data={
                 'From': '+15555555555',
                 'Body': 'reset'})
 
         # Assert
         self.assertEqual(response.status_code, 200)
+        mock.assert_called_once_with('reset', ['reset'], mailbox, '+15555555555')
 
         content = str(response.data)
-        self.assertIn('Bzzzzt!', content)
-
-        mailboxes = Mailbox.query.all()
-        self.assertEqual(len(mailboxes), 1)
-        self.assertEqual(mailboxes[0].carrier, 'Bar Wireless')
+        self.assertIn('Command processed!', content)
 
     def test_sms_process_answer(self):
         # Arrange
@@ -202,6 +179,83 @@ class ImportConfigTestCase(unittest.TestCase):
 
         # Assert
         self.assertFalse(mock.called)
+
+class ProcessCommandTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_disable(self):
+        # Arrange
+        mailbox = Mailbox(phone_number='+15555555555', carrier='Verizon Wireless')
+
+        # Act
+        reply = _process_command('disable', ['disable'], mailbox, '+15555555555')
+
+        # Assert
+        self.assertIn('*73', reply)
+
+    def test_sms_whitelist(self):
+        # Arrange
+        mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
+
+        # Act
+        body = 'whitelist 415 777 7777'
+        reply = _process_command('whitelist', body.split(), mailbox, '+15555555555')
+
+        # Assert
+        self.assertEqual(mailbox.whitelist, set(['+14157777777']))
+        self.assertIn('always allow calls from (415) 777-7777', reply)
+
+    def test_sms_whitelist_bad_number(self):
+        # Arrange
+        mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
+
+        # Act
+        body = 'whitelist 415 777'
+        reply = _process_command('whitelist', body.split(), mailbox, '+15555555555')
+
+        # Assert
+        self.assertEqual(mailbox.whitelist, set())
+        self.assertIn('an you send it to me again?', reply)
+
+    def test_sms_reset_command(self):
+        # Arrange
+        mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
+        db.session.add(mailbox)
+
+        mock_lookup_result = MagicMock()
+        mock_lookup_result.carrier = {'name': 'Bar Wireless'}
+
+        # Act
+        with patch('app.models.look_up_number', return_value=mock_lookup_result):
+            reply = _process_command('reset', ['reset'], mailbox, '+15555555555')
+
+        # Assert
+        self.assertIn('Bzzzzt!', reply)
+
+        mailboxes = Mailbox.query.all()
+        self.assertEqual(len(mailboxes), 1)
+        self.assertEqual(mailboxes[0].carrier, 'Bar Wireless')
+
+    def test_unknown_command(self):
+        # Arrange
+        mailbox = Mailbox(phone_number='+15555555555', carrier='Foo Wireless')
+
+        # Act
+        reply = _process_command('halp', ['halp'], mailbox, '+15555555555')
+
+        # Assert
+        self.assertIn('ANTI_VOICEMAIL_COMMANDS', reply)
 
 class ProcessAnswerTestCase(unittest.TestCase):
     def setUp(self):
@@ -323,7 +377,7 @@ class ProcessAnswerTestCase(unittest.TestCase):
 
         # Assert
         self.assertIsNone(mailbox.feelings_on_qr_codes)
-        self.assertIn('goofball', reply)
+        self.assertIn('kidder', reply)
 
         self.assertFalse(mailbox.send_config_image.called)
 
@@ -341,7 +395,7 @@ class ProcessAnswerTestCase(unittest.TestCase):
         reply = _process_answer("I'm the user and I feel lonely!", mailbox)
 
         # Assert
-        self.assertIn('need anything else right now', reply)
+        self.assertIn('Looking for help?', reply)
 
 class ConfigImageTestCase(unittest.TestCase):
     def setUp(self):

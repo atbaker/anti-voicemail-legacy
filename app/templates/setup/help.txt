@@ -1,0 +1,7 @@
+I've got a few extra tricks up my sleeve - you can text me these commands:
+
+"whitelist [phone number]" - Calls from this number can always leave a voicemail
+
+"reset" - Answer the setup questions again
+
+"disable" - Instructions for turning off Anti-Voicemail

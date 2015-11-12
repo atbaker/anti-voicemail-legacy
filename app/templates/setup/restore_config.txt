@@ -6,7 +6,10 @@ Name: {{ mailbox.name }}
 Phone number: {{ mailbox.phone_number|national_format }}
 Carrier: {{ mailbox.carrier }}
 Email: {{ mailbox.email }}
-
+{% if mailbox.whitelist|length > 0 %}
+These are the numbers on your whitelist:{% for phone_number in mailbox.whitelist %}
+{{ phone_number|national_format }}{% endfor %}
+{% endif %}
 And you *{{ mailbox.feelings_on_qr_codes }}* QR codes
 
 Can you try leaving yourself a voicemail again to make sure I'm working correctly?

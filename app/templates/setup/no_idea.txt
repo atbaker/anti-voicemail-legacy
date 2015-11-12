@@ -1,3 +1,8 @@
-Though I love chatting, I don't need anything else right now. 😉
+Hey you! Looking for help? Here are all the commands I understand:
 
-To turn off Anti-Voicemail, text "disable." To answer the setup questions again, text "reset".
+"disable" - Instructions for turning off Anti-Voicemail
+
+"whitelist [phone number]" - Always allow calls from a specific phone number to
+leave a voicemail
+
+"reset" - Erase my brain and answer the setup questions again
