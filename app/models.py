@@ -116,7 +116,7 @@ class Mailbox(db.Model):
             # Now ask them the big question
             # (unless we know it already from a previous restore)
             if not self.feelings_on_qr_codes:
-                body = render_template('setup/ask_qr_codes.txt')
+                body = render_template('setup/qr_codes/ask.txt')
             else:
                 body = render_template('setup/complete.txt')
 

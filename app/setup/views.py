@@ -104,11 +104,11 @@ def _process_command(command, body, mailbox, from_number):
             mailbox.whitelist = mailbox.whitelist.union(set([whitelisted_number]))
             db.session.add(mailbox)
 
-            reply = render_template('setup/whitelist_success.txt',
+            reply = render_template('setup/whitelist/success.txt',
                                     new_number=whitelisted_number,
                                     whitelist=list(mailbox.whitelist))
         else:
-            reply = render_template('setup/whitelist_retry.txt')
+            reply = render_template('setup/whitelist/retry.txt')
     elif command == 'reset':
         # Delete the existing Mailbox and begin the setup process again
         Mailbox.query.delete()
@@ -135,7 +135,7 @@ def _process_answer(answer, mailbox):
         db.session.add(mailbox)
 
         # Ask the user for their email address
-        reply = render_template('setup/ask_email.txt', mailbox=mailbox)
+        reply = render_template('setup/email/ask.txt', mailbox=mailbox)
 
     elif not mailbox.email:
         # If we have a name but not an email adddress, assume this message
@@ -147,13 +147,13 @@ def _process_answer(answer, mailbox):
             db.session.add(mailbox)
 
             # Tell the user how to set up conditional call forwarding
-            reply = render_template('setup/call_forwarding.txt', mailbox=mailbox)
+            reply = render_template('setup/call_forwarding/instructions.txt', mailbox=mailbox)
         else:
-            reply = render_template('setup/retry_email.txt')
+            reply = render_template('setup/email/retry.txt')
 
     elif not mailbox.call_forwarding_set:
         # Remind the user how to set up call forwarding
-        reply = render_template('setup/call_forwarding_retry.txt', mailbox=mailbox)
+        reply = render_template('setup/call_forwarding/retry.txt', mailbox=mailbox)
 
     elif not mailbox.feelings_on_qr_codes:
         # Most input will probably be something like yes/yeah/yea or no/nope/naw
@@ -163,16 +163,16 @@ def _process_answer(answer, mailbox):
         if answer == 'y':
             mailbox.feelings_on_qr_codes = 'love'
             db.session.add(mailbox)
-            reply = render_template('setup/likes_qr_codes.txt')
+            reply = render_template('setup/qr_codes/loves.txt')
 
             # Our user likes QR codes, so we'll send them the config image
             mailbox.send_config_image()
         elif answer == 'n':
             mailbox.feelings_on_qr_codes = 'hate'
             db.session.add(mailbox)
-            reply = render_template('setup/hates_qr_codes.txt')
+            reply = render_template('setup/qr_codes/hates.txt')
         else:
-            reply = render_template('setup/retry_qr_codes.txt')
+            reply = render_template('setup/qr_codes/retry.txt')
 
     else:
         # We have no idea why the user is texting us and would prefer it if
