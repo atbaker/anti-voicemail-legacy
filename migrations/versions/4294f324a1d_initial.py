@@ -1,13 +1,13 @@
-"""Initial migration
+"""empty message
 
-Revision ID: 144a1d39c99
+Revision ID: 4294f324a1d
 Revises: None
-Create Date: 2015-10-08 00:16:36.824382
+Create Date: 2015-11-15 16:31:17.369033
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '144a1d39c99'
+revision = '4294f324a1d'
 down_revision = None
 
 from alembic import op
@@ -19,7 +19,12 @@ def upgrade():
     op.create_table('mailbox',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('phone_number', sa.String(length=20), nullable=True),
+    sa.Column('carrier', sa.String(length=50), nullable=True),
     sa.Column('name', sa.String(length=100), nullable=True),
+    sa.Column('email', sa.String(length=100), nullable=True),
+    sa.Column('call_forwarding_set', sa.Boolean(), nullable=True),
+    sa.Column('feelings_on_qr_codes', sa.String(length=15), nullable=True),
+    sa.Column('whitelist', sa.PickleType(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('phone_number')
     )

@@ -30,8 +30,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Rename templates to have more managable naming convention
-- Flatten migrations
 - Make favicon
 - Fix up README
     - Clean up README itself
@@ -90,3 +88,5 @@ DONE:
     - Possible bug that doesn't remember whether you like or hate QR codes
     - Whitelist
     - Maybe break command part into separate method
+    - Rename templates to have more managable naming convention
+    - Flatten migrations
