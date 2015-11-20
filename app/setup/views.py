@@ -5,6 +5,7 @@ from twilio import twiml
 from . import setup
 from .forms import EmailForm, PhoneNumberForm
 from .. import db
+from ..decorators import validate_twilio_request
 from ..models import Mailbox
 from ..utils import set_twilio_number_urls
 
@@ -18,6 +19,7 @@ def index():
     return render_template('index.html', twilio_number=current_app.config['TWILIO_PHONE_NUMBER'])
 
 @setup.route('/sms', methods=['POST'])
+@validate_twilio_request
 def incoming_sms():
     """Receives an SMS message from a number"""
     resp = twiml.Response()

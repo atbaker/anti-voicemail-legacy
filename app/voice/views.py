@@ -2,12 +2,13 @@ from flask import redirect, render_template, request, url_for
 from twilio import twiml
 
 from . import voice
-from .. import db
+from ..decorators import validate_twilio_request
 from ..models import Mailbox, Voicemail
 from ..utils import get_twilio_rest_client, look_up_number
 
 
 @voice.route('/call', methods=['POST'])
+@validate_twilio_request
 def incoming_call():
     """
     Receives incoming calls to our Twilio number, including calls that our

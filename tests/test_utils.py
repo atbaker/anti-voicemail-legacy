@@ -4,6 +4,7 @@ from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
 from app import create_app, db
+from app.decorators import validate_twilio_request
 from app.utils import look_up_number, convert_to_national_format, send_async_message, set_twilio_number_urls
 
 
@@ -112,3 +113,39 @@ class UtilsTestCase(unittest.TestCase):
 
         # Assert
         self.assertFalse(mock_number.update.called)
+
+class DecoratorsTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        self.test_client = self.app.test_client()
+
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_valid_request(self):
+        # Act
+        response = self.test_client.post('/call', data={
+            'ForwardedFrom': '+15555555555',
+            'From': '+17777777777'
+            })
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+
+    def test_invalid_request(self):
+        # Act
+        response = self.test_client.post('/call', data={
+            'ForwardedFrom': '+15555555555',
+            'From': '+17777777777'
+            }, headers={'FORCE_VALIDATION': True})
+
+        # Assert
+        self.assertEqual(response.status_code, 403)
