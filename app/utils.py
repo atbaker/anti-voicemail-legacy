@@ -1,4 +1,4 @@
-from flask import current_app, render_template, url_for
+from flask import current_app, render_template, request, url_for
 from time import sleep
 from twilio.rest import TwilioRestClient
 from twilio.rest.exceptions import TwilioRestException
@@ -72,11 +72,11 @@ def set_twilio_number_urls():
     # Set the URLs only if they're blank (don't override any existing config)
     if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
         update_kwargs['voice_url'] = url_for(
-            'voice.incoming_call', _external=True)
+            'voice.incoming_call', _external=True, _scheme=request.scheme)
         update_kwargs['voice_method'] = 'POST'
     if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
         update_kwargs['sms_url'] = url_for(
-            'setup.incoming_sms', _external=True)
+            'setup.incoming_sms', _external=True, _scheme=request.scheme)
         update_kwargs['sms_method'] = 'POST'
 
     # Also set the fallback urls
