@@ -31,7 +31,10 @@ STAR_CODES = {
     }
 }
 
+
 class Mailbox(db.Model):
+    """Primary model. Stores information about a voicemail box"""
+
     id = db.Column(db.Integer, primary_key=True)
     phone_number = db.Column(db.String(20), unique=True)
     carrier = db.Column(db.String(50))
@@ -73,8 +76,10 @@ class Mailbox(db.Model):
 
     def get_call_forwarding_code(self):
         """Get the code our user should dial to enable call forwarding"""
-        voicemail_number = phonenumbers.parse(current_app.config['TWILIO_PHONE_NUMBER'])
-        code = STAR_CODES[self.carrier]['enable'].format(voicemail_number.national_number)
+        voicemail_number = phonenumbers.parse(
+            current_app.config['TWILIO_PHONE_NUMBER'])
+        code = STAR_CODES[self.carrier]['enable'].format(
+            voicemail_number.national_number)
         return code
 
     def get_disable_code(self):
@@ -88,7 +93,8 @@ class Mailbox(db.Model):
     def get_region_code(self):
         """Returns the phonenumbers region code for this Mailbox's number"""
         parsed_number = phonenumbers.parse(self.phone_number)
-        return phonenumbers.region_code_for_country_code(parsed_number.country_code)
+        return phonenumbers.region_code_for_country_code(
+            parsed_number.country_code)
 
     def send_contact_info(self, caller_number):
         """Sends a caller some text and email information for this mailbox"""
@@ -108,7 +114,8 @@ class Mailbox(db.Model):
         )
 
         # If this call is the user trying out Anti-Voicemail for the first time,
-        # update the call_forwarding_set property and send them the config image
+        # update the call_forwarding_set property and send them the config
+        # image
         if from_user and not self.call_forwarding_set:
             self.call_forwarding_set = True
             db.session.add(self)
@@ -122,7 +129,9 @@ class Mailbox(db.Model):
 
             app = current_app._get_current_object()
 
-            thread = Thread(target=send_async_message, args=[app, body, caller_number])
+            thread = Thread(
+                target=send_async_message, args=[
+                    app, body, caller_number])
             thread.start()
 
     def generate_config_image(self):
@@ -183,6 +192,7 @@ class Mailbox(db.Model):
         except Exception:
             # Something went wrong - this isn't going to work
             return "Ooops! I couldn't read that file after all. Sorry! D:"
+
 
 class Voicemail(object):
     """A simple class to represent a voicemail. Doesn't use a database"""

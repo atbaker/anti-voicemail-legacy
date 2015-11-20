@@ -22,11 +22,14 @@ def incoming_call():
     resp = twiml.Response()
 
     # Get our mailbox (if it's configured)
-    mailbox = Mailbox.query.filter_by(phone_number=request.form['ForwardedFrom']).first()
+    mailbox = Mailbox.query.filter_by(
+        phone_number=request.form['ForwardedFrom']).first()
 
     if mailbox is None or not mailbox.email:
         # This mailbox doesn't exist / isn't configured: end the call
-        resp.say('This phone number cannot receive voicemails right now. Goodbye', voice='alice')
+        resp.say(
+            'This phone number cannot receive voicemails right now. Goodbye',
+            voice='alice')
         return str(resp)
     elif request.form['From'] in mailbox.whitelist:
         # If the caller is on our whitelist, send them to the record view
@@ -34,7 +37,7 @@ def incoming_call():
 
     resp.say('{0} is unable to answer the phone. The best way to \
         reach them is by text message or email.'.format(mailbox.name),
-        voice='alice')
+             voice='alice')
 
     # Look up what type of phone the caller is using
     caller = request.form['From']
@@ -42,26 +45,29 @@ def incoming_call():
 
     # If we think the caller is on a mobile phone, send them a text message
     # with our user's contact info
-    if caller_info and caller_info.carrier['type'] == 'mobile' and caller_info.carrier['name']:
+    if caller_info and caller_info.carrier[
+            'type'] == 'mobile' and caller_info.carrier['name']:
         resp.say("I am sending you a text message with {0}'s phone number, \
             email address, and voicemail number. Thank you.".format(mailbox.name),
-            voice='alice')
+                 voice='alice')
         mailbox.send_contact_info(caller)
         return str(resp)
 
-    contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(mailbox.name, mailbox.email)
+    contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(
+        mailbox.name, mailbox.email)
     resp.say(contact_info, voice='alice')
 
     # Ask the caller if they *really* need to leave a voicemail
     resp.pause(length=1)
     with resp.gather(numDigits=1, action=url_for('voice.record')) as g:
         g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name),
-            voice='alice')
+              voice='alice')
 
     # Hang up if they don't enter any digits
     resp.say('Thank you for calling. Goodbye.', voice='alice')
 
     return str(resp)
+
 
 @voice.route('/record', methods=['GET', 'POST'])
 def record():
@@ -70,7 +76,9 @@ def record():
 
     # If a Digits attribute is present, make sure it's a value of 1
     if 'Digits' in request.form and request.form['Digits'] != '1':
-        resp.say('Thank you for not leaving a voicemail. Goodbye.', voice='alice')
+        resp.say(
+            'Thank you for not leaving a voicemail. Goodbye.',
+            voice='alice')
         return str(resp)
 
     # Otherwise, begrudgingly let them leave a voicemail
@@ -81,6 +89,7 @@ def record():
                 transcribeCallback=url_for('voice.send_notification'))
 
     return str(resp)
+
 
 @voice.route('/hang-up', methods=['POST'])
 def hang_up():
@@ -94,18 +103,21 @@ def hang_up():
 
     return str(resp)
 
+
 @voice.route('/send-notification', methods=['POST'])
 def send_notification():
     """Receives a transcribed voicemail from Twilio and sends an email"""
     # Create a new Voicemail from the POST data
     voicemail = Voicemail(request.form['From'],
-                          request.form.get('TranscriptionText', '(transcription failed)'),
-                          request.form['RecordingSid'])
+                          request.form.get(
+        'TranscriptionText', '(transcription failed)'),
+        request.form['RecordingSid'])
 
     voicemail.send_notification()
 
     # Be a nice web server and tell Twilio we're all done
     return ('', 204)
+
 
 @voice.route('/recording/<recording_sid>')
 def view_recording(recording_sid):
@@ -117,4 +129,5 @@ def view_recording(recording_sid):
     transcription = recording.transcriptions.list()[0].transcription_text
     call = client.calls.get(recording.call_sid)
 
-    return render_template('voice/recording.html', recording=recording, transcription=transcription, call=call)
+    return render_template(
+        'voice/recording.html', recording=recording, transcription=transcription, call=call)

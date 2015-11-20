@@ -13,6 +13,7 @@ def get_twilio_rest_client():
                               current_app.config['TWILIO_AUTH_TOKEN'])
     return client
 
+
 def send_async_message(app, body, to_number, delay=30):
     """Used to send text messages asynchronously in a Thread"""
     # Sleep (if specified)
@@ -25,6 +26,7 @@ def send_async_message(app, body, to_number, delay=30):
             to=to_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
+
 
 def look_up_number(phone_number):
     """Looks up a phone number to determine if it can receive a SMS message"""
@@ -39,6 +41,7 @@ def look_up_number(phone_number):
 
     return number_info
 
+
 def convert_to_national_format(phone_number):
     """Converts an E.164 formatted number to a national format"""
     try:
@@ -51,6 +54,7 @@ def convert_to_national_format(phone_number):
 
     return value
 
+
 def set_twilio_number_urls():
     """
     Sets the voice_url and sms_url on our Twilio phone number to point to this
@@ -59,32 +63,38 @@ def set_twilio_number_urls():
     client = get_twilio_rest_client()
 
     # Get our Twilio phone number
-    numbers = client.phone_numbers.list(phone_number=current_app.config['TWILIO_PHONE_NUMBER'])
+    numbers = client.phone_numbers.list(
+        phone_number=current_app.config['TWILIO_PHONE_NUMBER'])
     twilio_number = numbers[0]
 
     update_kwargs = {}
 
     # Set the URLs only if they're blank (don't override any existing config)
     if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
-        update_kwargs['voice_url'] = url_for('voice.incoming_call', _external=True)
+        update_kwargs['voice_url'] = url_for(
+            'voice.incoming_call', _external=True)
         update_kwargs['voice_method'] = 'POST'
     if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
-        update_kwargs['sms_url'] = url_for('setup.incoming_sms', _external=True)
+        update_kwargs['sms_url'] = url_for(
+            'setup.incoming_sms', _external=True)
         update_kwargs['sms_method'] = 'POST'
 
     # Also set the fallback urls
     if not twilio_number.voice_fallback_url:
-        update_kwargs['voice_fallback_url'] = current_app.config['VOICE_FALLBACK_URL']
+        update_kwargs['voice_fallback_url'] = current_app.config[
+            'VOICE_FALLBACK_URL']
         update_kwargs['voice_fallback_method'] = 'GET'
     if not twilio_number.sms_fallback_url:
-        update_kwargs['sms_fallback_url'] = current_app.config['SMS_FALLBACK_URL']
+        update_kwargs['sms_fallback_url'] = current_app.config[
+            'SMS_FALLBACK_URL']
         update_kwargs['sms_fallback_method'] = 'GET'
 
     # If we added any kwargs to our dict, update those properties on the number
     if update_kwargs:
         twilio_number.update(**update_kwargs)
 
-def gruber_quote(): # pragma: no cover
+
+def gruber_quote():  # pragma: no cover
     """Sends an inspirational quote to the user when the server is stopped"""
     gruber = """
     And when Alexander saw the breadth of his domain,
@@ -96,5 +106,5 @@ def gruber_quote(): # pragma: no cover
 
 import atexit
 import sys
-if sys.argv[-1] == 'test': # pragma: no cover
+if sys.argv[-1] == 'test':  # pragma: no cover
     atexit.register(gruber_quote)

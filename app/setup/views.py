@@ -13,10 +13,13 @@ from ..utils import set_twilio_number_urls
 @setup.route('/')
 def index():
     # While we're rendering the homepage, do the user a favor and configure
-    # their Twilio phone number callback URLs for them (if they haven't already)
+    # their Twilio phone number callback URLs for them (if they haven't
+    # already)
     set_twilio_number_urls()
 
-    return render_template('index.html', twilio_number=current_app.config['TWILIO_PHONE_NUMBER'])
+    return render_template('index.html', twilio_number=current_app.config[
+                           'TWILIO_PHONE_NUMBER'])
+
 
 @setup.route('/sms', methods=['POST'])
 @validate_twilio_request
@@ -72,6 +75,7 @@ def incoming_sms():
 
     return str(resp)
 
+
 def _import_config(from_number, image_url):
     """Processes a config image that the user has sent us"""
     # First see if we have an existing mailbox
@@ -86,6 +90,7 @@ def _import_config(from_number, image_url):
     result = Mailbox.import_config_image(image_url)
 
     return result
+
 
 def _process_command(command, body, mailbox, from_number):
     """A helper function to process commands sent from the user"""
@@ -103,7 +108,8 @@ def _process_command(command, body, mailbox, from_number):
 
             # We need to make a new whitelist object to ensure the
             # PickleType field detects a change
-            mailbox.whitelist = mailbox.whitelist.union(set([whitelisted_number]))
+            mailbox.whitelist = mailbox.whitelist.union(
+                set([whitelisted_number]))
             db.session.add(mailbox)
 
             reply = render_template('setup/whitelist/success.txt',
@@ -125,6 +131,7 @@ def _process_command(command, body, mailbox, from_number):
         reply = "Ooops! There's a mismatch between your ANTI_VOICEMAIL_COMMANDS config setting and your _process_command function. Better check that!"
 
     return reply
+
 
 def _process_answer(answer, mailbox):
     """A helper function to process answers to the setup questions"""
@@ -149,13 +156,17 @@ def _process_answer(answer, mailbox):
             db.session.add(mailbox)
 
             # Tell the user how to set up conditional call forwarding
-            reply = render_template('setup/call_forwarding/instructions.txt', mailbox=mailbox)
+            reply = render_template(
+                'setup/call_forwarding/instructions.txt',
+                mailbox=mailbox)
         else:
             reply = render_template('setup/email/retry.txt')
 
     elif not mailbox.call_forwarding_set:
         # Remind the user how to set up call forwarding
-        reply = render_template('setup/call_forwarding/retry.txt', mailbox=mailbox)
+        reply = render_template(
+            'setup/call_forwarding/retry.txt',
+            mailbox=mailbox)
 
     elif not mailbox.feelings_on_qr_codes:
         # Most input will probably be something like yes/yeah/yea or no/nope/naw
@@ -182,6 +193,7 @@ def _process_answer(answer, mailbox):
         reply = render_template('setup/no_idea.txt')
 
     return reply
+
 
 @setup.route('/config-image')
 def config_image():
