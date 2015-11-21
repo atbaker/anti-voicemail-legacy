@@ -31,6 +31,8 @@ Deploy on Heroku instantly:
 ## To-do
 
 - Set up demo server
+- Sentiment analysis for QR codes?
+- ChoiceField for love/hate?
 - Fix up README (start with outline)
     - Clean up README itself
     - Write instructions for getting started

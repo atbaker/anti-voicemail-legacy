@@ -114,8 +114,7 @@ class Mailbox(db.Model):
         )
 
         # If this call is the user trying out Anti-Voicemail for the first time,
-        # update the call_forwarding_set property and send them the config
-        # image
+        # update the call_forwarding_set property and ask them about QR codes
         if from_user and not self.call_forwarding_set:
             self.call_forwarding_set = True
             db.session.add(self)
@@ -153,14 +152,16 @@ class Mailbox(db.Model):
         this Mailbox
         """
         body = render_template('setup/complete.txt')
+        media_url = url_for('setup.config_image', _external=True)
 
-        client = get_twilio_rest_client()
-        client.messages.create(
-            body=body,
-            to=self.phone_number,
-            from_=current_app.config['TWILIO_PHONE_NUMBER'],
-            media_url=url_for('setup.config_image', _external=True)
-        )
+        # Send the config image asynchronously to make sure it doesn't arrive
+        # before the text describing it
+        app = current_app._get_current_object()
+
+        thread = Thread(
+            target=send_async_message, args=[
+                app, body, self.phone_number, media_url, 10])
+        thread.start()
 
     @classmethod
     def import_config_image(cls, config_image_url):

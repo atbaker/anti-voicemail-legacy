@@ -1,4 +1,4 @@
-from flask import current_app, render_template, request, url_for
+from flask import current_app, render_template, url_for
 from time import sleep
 from twilio.rest import TwilioRestClient
 from twilio.rest.exceptions import TwilioRestException
@@ -14,7 +14,7 @@ def get_twilio_rest_client():
     return client
 
 
-def send_async_message(app, body, to_number, delay=30):
+def send_async_message(app, body, to_number, media_url=None, delay=30):
     """Used to send text messages asynchronously in a Thread"""
     # Sleep (if specified)
     sleep(delay)
@@ -24,7 +24,8 @@ def send_async_message(app, body, to_number, delay=30):
         client.messages.create(
             body=body,
             to=to_number,
-            from_=current_app.config['TWILIO_PHONE_NUMBER']
+            from_=current_app.config['TWILIO_PHONE_NUMBER'],
+            media_url=[media_url]
         )
 
 
@@ -67,22 +68,16 @@ def set_twilio_number_urls():
         phone_number=current_app.config['TWILIO_PHONE_NUMBER'])
     twilio_number = numbers[0]
 
-    # Determine if we can use 'https' in the URLs we generate
-    if 'https' in (request.scheme, request.headers.get('X-Forwarded-Proto')):
-        scheme = 'https'
-    else:
-        scheme = 'http'
-
     update_kwargs = {}
 
     # Set the URLs only if they're blank (don't override any existing config)
     if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
         update_kwargs['voice_url'] = url_for(
-            'voice.incoming_call', _external=True, _scheme=scheme)
+            'voice.incoming_call', _external=True)
         update_kwargs['voice_method'] = 'POST'
     if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
         update_kwargs['sms_url'] = url_for(
-            'setup.incoming_sms', _external=True, _scheme=scheme)
+            'setup.incoming_sms', _external=True)
         update_kwargs['sms_method'] = 'POST'
 
     # Also set the fallback urls

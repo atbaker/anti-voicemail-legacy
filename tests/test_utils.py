@@ -3,7 +3,7 @@ from flask import current_app
 from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
-from app import create_app, db
+from app import SchemeProxyFix, create_app, db
 from app.decorators import validate_twilio_request
 from app.utils import look_up_number, convert_to_national_format, send_async_message, set_twilio_number_urls
 
@@ -35,7 +35,8 @@ class UtilsTestCase(unittest.TestCase):
         mock_client.messages.create.assert_called_once_with(
             body='Async foo',
             to='+15555555555',
-            from_='+19999999999')
+            from_='+19999999999',
+            media_url=[None])
 
     def test_look_up_number(self):
         # Arrange
@@ -112,26 +113,6 @@ class UtilsTestCase(unittest.TestCase):
         # Assert
         self.assertFalse(mock_number.update.called)
 
-    def test_set_twilio_urls_https(self):
-        # Arrange
-        mock_number = MagicMock(voice_url=None, sms_url=None)
-
-        mock_client = MagicMock()
-        mock_client.phone_numbers.list.return_value = [mock_number]
-
-        # Act
-        with patch('app.utils.TwilioRestClient', return_value=mock_client):
-            with patch('app.utils.request') as mock_request:
-                mock_request.scheme = 'https'
-                set_twilio_number_urls()
-
-        # Assert
-        mock_number.update.assert_called_once_with(
-            voice_url='https://localhost/call',
-            voice_method='POST',
-            sms_url='https://localhost/sms',
-            sms_method='POST')
-
 
 class DecoratorsTestCase(unittest.TestCase):
     def setUp(self):
@@ -140,9 +121,9 @@ class DecoratorsTestCase(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
 
-        self.test_client = self.app.test_client()
-
         db.create_all()
+
+        self.test_client = self.app.test_client()
 
     def tearDown(self):
         db.session.remove()
@@ -169,19 +150,44 @@ class DecoratorsTestCase(unittest.TestCase):
         # Assert
         self.assertEqual(response.status_code, 403)
 
-    def test_x_forwarded_proto_request(self):
+
+class SchemeProxyFixTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        db.create_all()
+
+        self.test_client = self.app.test_client()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+
+    def test_forwarded_header_present(self):
         # Arrange
-        mock_validator = MagicMock()
+        mock_app = MagicMock()
+        mock_environ = {
+            'HTTP_X_FORWARDED_PROTO': 'https', 'wsgi.url_scheme': 'http'}
 
         # Act
-        with patch('app.decorators.RequestValidator', return_value=mock_validator):
-            response = self.test_client.post('/call', data={
-                'ForwardedFrom': '+15555555555',
-                'From': '+17777777777'
-                }, headers={'X-Forwarded-Proto': 'https'})
+        middleware = SchemeProxyFix(mock_app)
+        middleware(mock_environ, None)
 
         # Assert
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(mock_environ['wsgi.url_scheme'], 'https')
 
-        self.assertEqual(
-            mock_validator.validate.call_args[0][0], 'https://localhost/call')
+    def test_no_forwarded_header(self):
+        # Arrange
+        mock_app = MagicMock()
+        mock_environ = {'wsgi.url_scheme': 'http'}
+
+        # Act
+        middleware = SchemeProxyFix(mock_app)
+        middleware(mock_environ, None)
+
+        # Assert
+        self.assertEqual(mock_environ['wsgi.url_scheme'], 'http')

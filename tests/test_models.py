@@ -170,17 +170,20 @@ class MailboxTestCase(unittest.TestCase):
     def test_send_config_image(self):
         # Arrange
         mailbox = Mailbox('+15555555555', carrier='Foo Wireless')
-        mock_client = MagicMock()
+        mock_thread = MagicMock()
 
         # Act
-        with patch('app.models.get_twilio_rest_client', return_value=mock_client):
+        with patch('app.models.Thread', return_value=mock_thread) as MockThread:
             mailbox.send_config_image()
 
         # Assert
-        assert mock_client.messages.create.called
+        body = MockThread.call_args[1]['args'][1]
+        self.assertIn('Now get on with your life!', body)
 
-        args = mock_client.messages.create.call_args[1]
-        self.assertEqual(args['media_url'], 'http://localhost/config-image')
+        media_url = MockThread.call_args[1]['args'][3]
+        self.assertEqual(media_url, 'http://localhost/config-image')
+
+        assert mock_thread.start.called
 
     def test_import_config_image(self):
         # Arrange
