@@ -19,13 +19,16 @@ def send_async_message(app, body, to_number, media_url=None, delay=30):
     # Sleep (if specified)
     sleep(delay)
 
+    if media_url:
+        media_url = [media_url]
+
     with app.app_context():
         client = get_twilio_rest_client()
         client.messages.create(
             body=body,
             to=to_number,
             from_=current_app.config['TWILIO_PHONE_NUMBER'],
-            media_url=[media_url]
+            media_url=media_url
         )
 
 

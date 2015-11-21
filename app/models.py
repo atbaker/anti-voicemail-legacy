@@ -41,7 +41,7 @@ class Mailbox(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
-    feelings_on_qr_codes = db.Column(db.String(15))
+    feelings_on_qr_codes = db.Column(db.Enum('love', 'hate', name='qr_code_enum'))
     whitelist = db.Column(db.PickleType())
 
     def __init__(self, phone_number, id=None, carrier=None, name=None,

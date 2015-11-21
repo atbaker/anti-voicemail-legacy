@@ -1,10 +1,8 @@
 import unittest
-from flask import current_app
 from twilio.rest.exceptions import TwilioRestException
 from unittest.mock import MagicMock, patch
 
 from app import SchemeProxyFix, create_app, db
-from app.decorators import validate_twilio_request
 from app.utils import look_up_number, convert_to_national_format, send_async_message, set_twilio_number_urls
 
 
@@ -36,7 +34,25 @@ class UtilsTestCase(unittest.TestCase):
             body='Async foo',
             to='+15555555555',
             from_='+19999999999',
-            media_url=[None])
+            media_url=None)
+
+    def test_send_async_message_media(self):
+        # Arrange
+        mock_client = MagicMock()
+
+        # Act
+        with patch('app.utils.get_twilio_rest_client', return_value=mock_client):
+            with patch('app.utils.sleep') as mock_sleep:
+                send_async_message(self.app, 'Async foo', '+15555555555', 'http://example.com/image')
+
+        # Assert
+        mock_sleep.assert_called_once_with(30)
+
+        mock_client.messages.create.assert_called_once_with(
+            body='Async foo',
+            to='+15555555555',
+            from_='+19999999999',
+            media_url=['http://example.com/image'])
 
     def test_look_up_number(self):
         # Arrange

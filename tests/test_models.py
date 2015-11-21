@@ -193,7 +193,7 @@ class MailboxTestCase(unittest.TestCase):
         db.session.commit()
 
         mock_response = MagicMock()
-        mock_response.json.return_value = [{'type': 'qrcode', 'symbol': [{'data': '{"id": 1, "feelings_on_qr_codes": "like", "phone_number": "+15555555555", "name": "Jane Foo", "email": "jane@foo.com", "call_forwarding_set": false, "carrier": "Foo Wireless"}', 'error': None, 'seq': 0}]}]
+        mock_response.json.return_value = [{'type': 'qrcode', 'symbol': [{'data': '{"id": 1, "feelings_on_qr_codes": "love", "phone_number": "+15555555555", "name": "Jane Foo", "email": "jane@foo.com", "call_forwarding_set": false, "carrier": "Foo Wireless"}', 'error': None, 'seq': 0}]}]
 
         # Act
         with patch('app.models.requests.get', return_value=mock_response):
