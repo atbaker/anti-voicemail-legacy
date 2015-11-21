@@ -67,16 +67,22 @@ def set_twilio_number_urls():
         phone_number=current_app.config['TWILIO_PHONE_NUMBER'])
     twilio_number = numbers[0]
 
+    # Determine if we can use 'https' in the URLs we generate
+    if 'https' in (request.scheme, request.headers.get('X-Forwarded-Proto')):
+        scheme = 'https'
+    else:
+        scheme = 'http'
+
     update_kwargs = {}
 
     # Set the URLs only if they're blank (don't override any existing config)
     if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
         update_kwargs['voice_url'] = url_for(
-            'voice.incoming_call', _external=True, _scheme=request.scheme)
+            'voice.incoming_call', _external=True, _scheme=scheme)
         update_kwargs['voice_method'] = 'POST'
     if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
         update_kwargs['sms_url'] = url_for(
-            'setup.incoming_sms', _external=True, _scheme=request.scheme)
+            'setup.incoming_sms', _external=True, _scheme=scheme)
         update_kwargs['sms_method'] = 'POST'
 
     # Also set the fallback urls
