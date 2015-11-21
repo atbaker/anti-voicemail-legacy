@@ -30,13 +30,12 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Make favicon
+- Set up demo server
 - Fix up README (start with outline)
     - Clean up README itself
     - Write instructions for getting started
     - Write instructions on how to add your carrier
 - Tag release
-- Register anti-voicemail.com
 - Add CONTRIBUTING
 - Fill out sample issues
 - PEP8 this biz
@@ -92,3 +91,5 @@ DONE:
     - Rename templates to have more managable naming convention
     - Flatten migrations
     - Verify Twilio requests
+    - Register anti-voicemail.com
+    - Get HTTP scheme reflected in auto-setup util

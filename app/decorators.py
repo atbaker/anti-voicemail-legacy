@@ -10,10 +10,17 @@ def validate_twilio_request(f):
         # Create an instance of the RequestValidator class
         validator = RequestValidator(current_app.config['TWILIO_AUTH_TOKEN'])
 
+        # If our app is using piggyback SSL, we'll need to change request.url
+        # to be https instead of http because Twilio used https in its request
+        url = request.url
+        if 'X-Forwarded-Proto' in request.headers:
+            url = request.url.replace('http',
+                                      request.headers['X-Forwarded-Proto'])
+
         # Validate the request using its URL, POST data,
         # and X-TWILIO-SIGNATURE header
         request_valid = validator.validate(
-            request.url,
+            url,
             request.form,
             request.headers.get('X-TWILIO-SIGNATURE', ''))
 

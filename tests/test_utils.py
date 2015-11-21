@@ -72,11 +72,9 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_set_twilio_urls_all(self):
         # Arrange
-        mock_number = MagicMock()
-        mock_number.voice_url = None
-        mock_number.sms_url = None
-        mock_number.voice_fallback_url = None
-        mock_number.sms_fallback_url = None
+        mock_number = MagicMock(
+            voice_url=None, sms_url=None, voice_fallback_url=None,
+            sms_fallback_url=None)
 
         mock_client = MagicMock()
         mock_client.phone_numbers.list.return_value = [mock_number]
@@ -98,11 +96,11 @@ class UtilsTestCase(unittest.TestCase):
 
     def test_set_twilio_urls_none(self):
         # Arrange
-        mock_number = MagicMock()
-        mock_number.voice_url = 'http://example.com/call'
-        mock_number.sms_url = 'http://example.com/sms'
-        mock_number.voice_fallback_url = 'http://example.com/voice-error'
-        mock_number.sms_fallback_url = 'http://example.com/sms-error'
+        mock_number = MagicMock(
+            voice_url='http://example.com/call',
+            sms_url='http://example.com/sms',
+            voice_fallback_url='http://example.com/voice-error',
+            sms_fallback_url='http://example.com/sms-error')
 
         mock_client = MagicMock()
         mock_client.phone_numbers.list.return_value = [mock_number]
@@ -113,6 +111,27 @@ class UtilsTestCase(unittest.TestCase):
 
         # Assert
         self.assertFalse(mock_number.update.called)
+
+    def test_set_twilio_urls_https(self):
+        # Arrange
+        mock_number = MagicMock(voice_url=None, sms_url=None)
+
+        mock_client = MagicMock()
+        mock_client.phone_numbers.list.return_value = [mock_number]
+
+        # Act
+        with patch('app.utils.TwilioRestClient', return_value=mock_client):
+            with patch('app.utils.request') as mock_request:
+                mock_request.scheme = 'https'
+                set_twilio_number_urls()
+
+        # Assert
+        mock_number.update.assert_called_once_with(
+            voice_url='https://localhost/call',
+            voice_method='POST',
+            sms_url='https://localhost/sms',
+            sms_method='POST')
+
 
 class DecoratorsTestCase(unittest.TestCase):
     def setUp(self):
@@ -149,3 +168,20 @@ class DecoratorsTestCase(unittest.TestCase):
 
         # Assert
         self.assertEqual(response.status_code, 403)
+
+    def test_x_forwarded_proto_request(self):
+        # Arrange
+        mock_validator = MagicMock()
+
+        # Act
+        with patch('app.decorators.RequestValidator', return_value=mock_validator):
+            response = self.test_client.post('/call', data={
+                'ForwardedFrom': '+15555555555',
+                'From': '+17777777777'
+                }, headers={'X-Forwarded-Proto': 'https'})
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            mock_validator.validate.call_args[0][0], 'https://localhost/call')
