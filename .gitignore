@@ -5,6 +5,9 @@
 # Database files
 *.sqlite
 
+# Cache directory
+recent_calls/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask.ext.bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
+from werkzeug.contrib.cache import FileSystemCache, SimpleCache
 
 from config import config
 from .utils import convert_to_national_format
@@ -32,6 +33,12 @@ def create_app(config_name):
 
     # Apply the SchemeProxyFix middleware
     app.wsgi_app = SchemeProxyFix(app.wsgi_app)
+
+    # Add our cache
+    if config_name == 'production':  # pragma: no cover
+        app.cache = FileSystemCache('recent_calls')
+    else:
+        app.cache = SimpleCache()
 
     bootstrap.init_app(app)
     db.init_app(app)

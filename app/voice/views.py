@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, url_for
+from flask import current_app, redirect, render_template, request, url_for
 from twilio import twiml
 
 from . import voice
@@ -14,16 +14,16 @@ def incoming_call():
     Receives incoming calls to our Twilio number, including calls that our
     user's carrier forwarded to our Twilio number
     """
-    # If this call was directly to our Anti-Voicemail number, send them to the
-    # voicemail view
-    if 'ForwardedFrom' not in request.form:
+    # If this caller called in the last 30 minutes, send them straight to the
+    # record view
+    caller = request.form['From']
+    if current_app.cache.get(caller):
         return redirect(url_for('voice.record'))
 
     resp = twiml.Response()
 
     # Get our mailbox (if it's configured)
-    mailbox = Mailbox.query.filter_by(
-        phone_number=request.form['ForwardedFrom']).first()
+    mailbox = Mailbox.query.first()
 
     if mailbox is None or not mailbox.email:
         # This mailbox doesn't exist / isn't configured: end the call
@@ -40,7 +40,6 @@ def incoming_call():
              voice='alice')
 
     # Look up what type of phone the caller is using
-    caller = request.form['From']
     caller_info = look_up_number(caller)
 
     # If we think the caller is on a mobile phone, send them a text message
@@ -51,6 +50,9 @@ def incoming_call():
             email address, and voicemail number. Thank you.".format(mailbox.name),
                  voice='alice')
         mailbox.send_contact_info(caller)
+
+        # Add this phone number to our cache of recent callers
+        current_app.cache.set(caller, True, timeout=30 * 60)
         return str(resp)
 
     contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(

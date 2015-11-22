@@ -37,7 +37,6 @@ class VoiceViewsTestCase(unittest.TestCase):
         with patch('app.voice.views.look_up_number', return_value=mock_lookup_result):
             with patch.object(Mailbox, 'send_contact_info') as mock_method:
                 response = self.test_client.post('/call', data={
-                    'ForwardedFrom': '+15555555555',
                     'From': '+17777777777'
                     })
 
@@ -64,7 +63,6 @@ class VoiceViewsTestCase(unittest.TestCase):
         # Act
         with patch('app.voice.views.look_up_number', return_value=mock_lookup_result):
             response = self.test_client.post('/call', data={
-                'ForwardedFrom': '+15555555555',
                 'From': '+17777777777'
                 })
 
@@ -79,6 +77,9 @@ class VoiceViewsTestCase(unittest.TestCase):
         self.assertIn('press 1', content)
 
     def test_call_redirect_to_record(self):
+        # Arrange
+        self.app.cache.set('+17777777777', True)
+
         # Act
         response = self.test_client.post('/call', data={'From': '+17777777777'})
 
@@ -100,7 +101,6 @@ class VoiceViewsTestCase(unittest.TestCase):
 
         # Act
         response = self.test_client.post('/call', data={
-            'ForwardedFrom': '+15555555555',
             'From': '+17777777777'})
 
         # Assert
@@ -112,7 +112,6 @@ class VoiceViewsTestCase(unittest.TestCase):
     def test_call_no_mailbox(self):
         # Act
         response = self.test_client.post('/call', data={
-            'ForwardedFrom': '+15555555555',
             'From': '+17777777777'
             })
 

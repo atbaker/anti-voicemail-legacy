@@ -149,7 +149,6 @@ class DecoratorsTestCase(unittest.TestCase):
     def test_valid_request(self):
         # Act
         response = self.test_client.post('/call', data={
-            'ForwardedFrom': '+15555555555',
             'From': '+17777777777'
             })
 
@@ -159,7 +158,6 @@ class DecoratorsTestCase(unittest.TestCase):
     def test_invalid_request(self):
         # Act
         response = self.test_client.post('/call', data={
-            'ForwardedFrom': '+15555555555',
             'From': '+17777777777'
             }, headers={'FORCE_VALIDATION': True})
 
