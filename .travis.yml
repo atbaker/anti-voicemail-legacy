@@ -4,8 +4,13 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install coveralls
-script: coverage run manage.py test
+script: 
+  - coverage run manage.py test
+  - docker-compose run web python manage.py test # Also run the tests in Docker
 env:
   - TWILIO_ACCOUNT_SID=ACXXXXXXXXXXXXXXXXX TWILIO_AUTH_TOKEN=YYYYYYYYYYYYYYYYYY TWILIO_PHONE_NUMBER=+19999999999
 after_success:
   - coveralls
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker tag antivoicemail_web atbaker/anti-voicemail
+  - docker push atbaker/anti-voicemail

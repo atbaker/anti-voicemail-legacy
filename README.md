@@ -30,7 +30,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Set up demo server
 - Docker automated build
 - Fix up README (start with outline)
     - Clean up README itself
@@ -46,9 +45,6 @@ Maybe:
 
 Follow ups:
     - Time zone - Just use browser to get it programatically
-
-- Multi-tenant:
-    - Calling Twilio Number directly: Remember a previous call
 
 DONE:
 
@@ -96,3 +92,4 @@ DONE:
     - Get HTTP scheme reflected in auto-setup util
     - Enum for love/hate?
     - Eliminate need for ForwardedFrom
+    - Set up demo server
