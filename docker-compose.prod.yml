@@ -1,0 +1,13 @@
+# Docker-compose production config for Anti-Voicemail
+
+web:
+  image: atbaker/anti-voicemail
+  ports:
+    - "80:8000"
+  environment:
+    - TWILIO_ACCOUNT_SID
+    - TWILIO_AUTH_TOKEN
+    - TWILIO_PHONE_NUMBER
+    - SECRET_KEY
+    - FLASK_CONFIG=production
+  command: gunicorn manage:app --bind=0.0.0.0 --log-file=-

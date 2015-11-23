@@ -1,14 +1,12 @@
-# Docker-compose config for Anti-Voicemail
+# Docker-compose development config for Anti-Voicemail
 
 web:
   build: .
   ports:
-    - "80:8000"
+    - "5000:5000"
   environment:
-    - SECRET_KEY
     - TWILIO_ACCOUNT_SID
     - TWILIO_AUTH_TOKEN
     - TWILIO_PHONE_NUMBER
-  # Uncomment these lines if doing local development with Docker
-  # volumes:
-  #  - .:/usr/src/app
+  volumes:
+   - .:/usr/src/app

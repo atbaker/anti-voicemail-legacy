@@ -3,6 +3,6 @@
 
 FROM python:3-onbuild
 
-EXPOSE 8000
+EXPOSE 5000
 
-CMD gunicorn manage:app --bind=0.0.0.0 --log-file=-
+CMD python manage.py runserver -h 0.0.0.0
