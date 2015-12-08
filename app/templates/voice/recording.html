@@ -3,7 +3,7 @@
 
 {% block content %}
   <div class="col-md-6 col-md-offset-3">
-    <h1>Call from {{ call.from_|national_format }} <small id="time"></small></h1>
+    <h1>{{ call.from_|national_format }} <br/><small id="time"></small></h1>
 
     <button onclick="audio.play()" class="btn btn-primary btn-lg btn-block">Play recording</button>
 
@@ -20,7 +20,7 @@
   <script type="text/javascript">
     var audio = new Audio("{{ recording.formats['mp3'] }}");
 
-    var createdTime = moment("{{ recording.date_created.strftime('%Y-%m-%d %H:%M') }} UTC");
+    var createdTime = moment("{{ recording.date_created.isoformat() }}Z");
     document.getElementById('time').textContent = createdTime.fromNow();
   </script>
 {% endblock %}
