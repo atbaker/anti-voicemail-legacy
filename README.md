@@ -30,7 +30,6 @@ Deploy on Heroku instantly:
 
 ## To-do
 
-- Docker automated build
 - Fix up README (start with outline)
     - Clean up README itself
     - Write instructions for getting started
@@ -39,12 +38,6 @@ Deploy on Heroku instantly:
 - Add CONTRIBUTING
 - Fill out sample issues
 - PEP8 this biz
-
-Maybe:
-    - Ask for pronoun preference in setup?
-
-Follow ups:
-    - Time zone - Just use browser to get it programatically
 
 DONE:
 
@@ -93,3 +86,6 @@ DONE:
     - Enum for love/hate?
     - Eliminate need for ForwardedFrom
     - Set up demo server
+    - Docker automated build
+    - Get it running on Docker machine
+    - Smarter fallback URLs (that don't adjust state when they happen)
