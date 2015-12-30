@@ -35,7 +35,7 @@ class VoiceViewsTestCase(unittest.TestCase):
 
         # Act
         with patch('app.voice.views.look_up_number', return_value=mock_lookup_result):
-            with patch.object(Mailbox, 'send_contact_info') as mock_method:
+            with patch.object(Mailbox, 'send_contact_info') as mock:
                 response = self.test_client.post('/call', data={
                     'From': '+17777777777'
                     })
@@ -47,7 +47,36 @@ class VoiceViewsTestCase(unittest.TestCase):
         self.assertIn('Jane Foo', content)
         self.assertIn('I am sending you a text message', content)
 
-        mock_method.assert_called_once_with('+17777777777')
+        mock.assert_called_once_with('+17777777777')
+
+    def test_call_from_mobile_retry(self):
+        # Arrange
+        mailbox = Mailbox(
+            phone_number='+15555555555',
+            carrier='Foo Wireless',
+            name='Jane Foo',
+            email='jane@foo.com')
+        db.session.add(mailbox)
+
+        mock_lookup_result = MagicMock(carrier={'type': 'mobile', 'name': 'Foo Wireless'})
+
+        # Act
+        with patch('app.voice.views.look_up_number', return_value=mock_lookup_result):
+            with patch.object(Mailbox, 'send_contact_info') as mock:
+                response = self.test_client.post('/error', data={
+                    'From': '+17777777777',
+                    'ErrorCode': '11200',
+                    'ErrorUrl': '/call'
+                    })
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        content = str(response.data)
+
+        self.assertIn('Jane Foo', content)
+        self.assertIn('I am sending you a text message', content)
+
+        self.assertFalse(mock.called)
 
     def test_call_from_non_mobile(self):
         # Arrange

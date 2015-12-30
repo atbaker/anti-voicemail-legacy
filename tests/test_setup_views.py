@@ -39,7 +39,7 @@ class SMSViewTestCase(unittest.TestCase):
 
         # Act
         with patch('app.models.look_up_number', return_value=mock_lookup_result):
-            response = self.test_client.post('/sms', data={'From': '+15555555555'})
+            response = self.test_client.post('/message', data={'From': '+15555555555'})
 
         # Assert
         self.assertEqual(response.status_code, 200)
@@ -56,7 +56,7 @@ class SMSViewTestCase(unittest.TestCase):
 
         # Act
         with patch('app.models.look_up_number', return_value=mock_lookup_result):
-            response = self.test_client.post('/sms', data={'From': '+15555555555'})
+            response = self.test_client.post('/message', data={'From': '+15555555555'})
 
         # Assert
         self.assertEqual(response.status_code, 200)
@@ -71,7 +71,7 @@ class SMSViewTestCase(unittest.TestCase):
         db.session.add(mailbox)
 
         # Act
-        response = self.test_client.post('/sms', data={'From': '+16666666666'})
+        response = self.test_client.post('/message', data={'From': '+16666666666'})
 
         # Assert
         self.assertEqual(response.status_code, 204)
@@ -81,7 +81,7 @@ class SMSViewTestCase(unittest.TestCase):
     def test_sms_config_image(self):
         # Act
         with patch('app.setup.views._import_config', return_value='Image processed!') as mock:
-            response = self.test_client.post('/sms', data={
+            response = self.test_client.post('/message', data={
                 'From': '+15555555555',
                 'MediaUrl0': 'http://i.imgur.com/VMSuO1N.gif'})
 
@@ -99,7 +99,7 @@ class SMSViewTestCase(unittest.TestCase):
 
         # Act
         with patch('app.setup.views._process_command', return_value='Command processed!') as mock:
-            response = self.test_client.post('/sms', data={
+            response = self.test_client.post('/message', data={
                 'From': '+15555555555',
                 'Body': 'reset'})
 
@@ -117,7 +117,7 @@ class SMSViewTestCase(unittest.TestCase):
 
         # Act
         with patch('app.setup.views._process_answer', return_value='Answer processed!') as mock:
-            response = self.test_client.post('/sms', data={
+            response = self.test_client.post('/message', data={
                 'From': '+15555555555',
                 'Body': 'Jane Foo'})
 
@@ -427,3 +427,96 @@ class ConfigImageTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content_type, 'image/png')
         self.assertTrue(response.is_streamed)
+
+
+class ErrorHandlerTestCase(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app('testing')
+
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+
+        self.test_client = self.app.test_client()
+
+    def tearDown(self):
+        db.session.remove()
+        self.app_context.pop()
+
+    def test_handle_error_no_error_code(self):
+        # Act
+        response = self.test_client.post('/error', data={})
+
+        # Assert
+        self.assertEqual(response.status_code, 400)
+
+    def test_voice_error_retry_success(self):
+        # Act
+        with patch('app.setup.views.incoming_call', return_value='foo') as mock:
+            response = self.test_client.post('/error', data={
+                'ErrorCode': '11200',
+                'ErrorUrl': '/call'
+                })
+
+        # Assert
+        mock.assert_called_once_with(retry=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('foo', str(response.data))
+
+    def test_voice_error_retry_fail(self):
+        # Arrange
+        mock = MagicMock(side_effect=Exception())
+
+        # Act
+        with patch('app.setup.views.incoming_call', mock):
+            response = self.test_client.post('/error', data={
+                'ErrorCode': '11200',
+                'ErrorUrl': '/call'
+                })
+
+        # Assert
+        mock.assert_called_once_with(retry=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('If this number belongs to you', str(response.data))
+
+    def test_message_error_retry_success(self):
+        # Act
+        with patch('app.setup.views.incoming_message', return_value='foo') as mock:
+            response = self.test_client.post('/error', data={
+                'ErrorCode': '11200',
+                'ErrorUrl': '/message'
+                })
+
+        # Assert
+        mock.assert_called_once_with()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('foo', str(response.data))
+
+    def test_message_error_retry_fail(self):
+        # Arrange
+        mock = MagicMock(side_effect=Exception())
+
+        # Act
+        with patch('app.setup.views.incoming_message', mock):
+            response = self.test_client.post('/error', data={
+                'ErrorCode': '11200',
+                'ErrorUrl': '/message'
+                })
+
+        # Assert
+        mock.assert_called_once_with()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Oh dear', str(response.data))
+
+    def test_handle_error_no_retry(self):
+        # Act
+        response = self.test_client.post('/error', data={
+            'ErrorCode': 'fooo',
+            'ErrorUrl': '/call'
+            })
+
+        # Assert
+        self.assertEqual(response.status_code, 200)

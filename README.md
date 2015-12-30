@@ -28,7 +28,6 @@ it up again
 
 After you deploy Anti-voicemail, you will complete the setup process.
 
-
 ## Deploy it now
 
 Deploy on Heroku instantly:

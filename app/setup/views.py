@@ -1,9 +1,10 @@
-from flask import abort, current_app, redirect, render_template, Response, request, send_file, url_for
+from flask import abort, current_app, render_template, request, send_file
 from io import BytesIO
 from twilio import twiml
 
 from . import setup
 from .forms import EmailForm, PhoneNumberForm
+from ..voice.views import incoming_call
 from .. import db
 from ..decorators import validate_twilio_request
 from ..models import Mailbox
@@ -21,9 +22,9 @@ def index():
                            'TWILIO_PHONE_NUMBER'])
 
 
-@setup.route('/sms', methods=['POST'])
+@setup.route('/message', methods=['POST'])
 @validate_twilio_request
-def incoming_sms():
+def incoming_message():
     """Receives an SMS message from a number"""
     resp = twiml.Response()
 
@@ -208,3 +209,40 @@ def config_image():
     img_io.seek(0)
 
     return send_file(img_io, mimetype='image/png')
+
+
+@setup.route('/error', methods=['POST'])
+def handle_error():
+    """
+    Handles errors for incoming messages. Twilio will POST to this view
+    when it encounters an error in its request to /message.
+
+    Unlike the voice app handle_error method, it doesn't attempt to retry any
+    requests
+    """
+    # If an 'ErrorCode' field is not in the data, then this request didn't
+    # originate from an error
+    error_code = request.form.get('ErrorCode')
+    if error_code is None:
+        return ('', 400)
+
+    # If the ErrorCode is a HTTP retrieval error, retry the original view
+    voice_error = '/call' in request.form['ErrorUrl']
+    if error_code == '11200':
+        try:
+            if voice_error:
+                return incoming_call(retry=True)
+            else:
+                return incoming_message()
+        except Exception:
+            # It failed again, so this is a real error and we should apologize
+            # to the caller
+            pass
+
+    resp = twiml.Response()
+    if voice_error:
+        resp.say(render_template('voice/error.txt'), voice='alice')
+    else:
+        resp.message(render_template('setup/error.txt'))
+
+    return str(resp)

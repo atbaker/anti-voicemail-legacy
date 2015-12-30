@@ -9,7 +9,7 @@ from ..utils import get_twilio_rest_client, look_up_number
 
 @voice.route('/call', methods=['POST'])
 @validate_twilio_request
-def incoming_call():
+def incoming_call(retry=False):
     """
     Receives incoming calls to our Twilio number, including calls that our
     user's carrier forwarded to our Twilio number
@@ -17,9 +17,10 @@ def incoming_call():
     # If this caller called in the last 30 minutes, send them straight to the
     # record view
     caller = request.form['From']
-    if current_app.cache.get(caller):
+    if current_app.cache.get(caller) and not retry:
         return redirect(url_for('voice.record'))
 
+    # Start our TwiML response
     resp = twiml.Response()
 
     # Get our mailbox (if it's configured)
@@ -31,7 +32,7 @@ def incoming_call():
             'This phone number cannot receive voicemails right now. Goodbye',
             voice='alice')
         return str(resp)
-    elif request.form['From'] in mailbox.whitelist:
+    elif caller in mailbox.whitelist:
         # If the caller is on our whitelist, send them to the record view
         return redirect(url_for('voice.record'))
 
@@ -49,7 +50,8 @@ def incoming_call():
         resp.say("I am sending you a text message with {0}'s phone number, \
             email address, and voicemail number. Thank you.".format(mailbox.name),
                  voice='alice')
-        mailbox.send_contact_info(caller)
+        if not retry:
+            mailbox.send_contact_info(caller)
 
         # Add this phone number to our cache of recent callers
         current_app.cache.set(caller, True, timeout=30 * 60)

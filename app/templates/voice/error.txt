@@ -1,0 +1,5 @@
+I'm sorry, but this number cannot accept voicemails right now.
+
+If this number belongs to you, please check your Anti-Voicemail server logs.
+
+Goodbye.

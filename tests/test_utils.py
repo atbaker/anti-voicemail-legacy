@@ -104,20 +104,20 @@ class UtilsTestCase(unittest.TestCase):
         mock_number.update.assert_called_once_with(
             voice_url='http://localhost/call',
             voice_method='POST',
-            sms_url='http://localhost/sms',
+            sms_url='http://localhost/message',
             sms_method='POST',
-            voice_fallback_url=self.app.config['VOICE_FALLBACK_URL'],
-            voice_fallback_method='GET',
-            sms_fallback_url=self.app.config['SMS_FALLBACK_URL'],
-            sms_fallback_method='GET')
+            voice_fallback_url='http://localhost/error',
+            voice_fallback_method='POST',
+            sms_fallback_url='http://localhost/error',
+            sms_fallback_method='POST')
 
     def test_set_twilio_urls_none(self):
         # Arrange
         mock_number = MagicMock(
             voice_url='http://example.com/call',
-            sms_url='http://example.com/sms',
-            voice_fallback_url='http://example.com/voice-error',
-            sms_fallback_url='http://example.com/sms-error')
+            sms_url='http://example.com/message',
+            voice_fallback_url='http://example.com/error',
+            sms_fallback_url='http://example.com/error')
 
         mock_client = MagicMock()
         mock_client.phone_numbers.list.return_value = [mock_number]

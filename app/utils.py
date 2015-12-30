@@ -80,18 +80,17 @@ def set_twilio_number_urls():
         update_kwargs['voice_method'] = 'POST'
     if not twilio_number.sms_url or 'demo.twilio.com' in twilio_number.sms_url:
         update_kwargs['sms_url'] = url_for(
-            'setup.incoming_sms', _external=True)
+            'setup.incoming_message', _external=True)
         update_kwargs['sms_method'] = 'POST'
 
     # Also set the fallback urls
+    error_url = url_for('setup.handle_error', _external=True)
     if not twilio_number.voice_fallback_url:
-        update_kwargs['voice_fallback_url'] = current_app.config[
-            'VOICE_FALLBACK_URL']
-        update_kwargs['voice_fallback_method'] = 'GET'
+        update_kwargs['voice_fallback_url'] = error_url
+        update_kwargs['voice_fallback_method'] = 'POST'
     if not twilio_number.sms_fallback_url:
-        update_kwargs['sms_fallback_url'] = current_app.config[
-            'SMS_FALLBACK_URL']
-        update_kwargs['sms_fallback_method'] = 'GET'
+        update_kwargs['sms_fallback_url'] = error_url
+        update_kwargs['sms_fallback_method'] = 'POST'
 
     # If we added any kwargs to our dict, update those properties on the number
     if update_kwargs:
@@ -103,7 +102,7 @@ def gruber_quote():  # pragma: no cover
     gruber = """
     And when Alexander saw the breadth of his domain,
         he wept for there were no more worlds to conquer.
-                                —Hans Gruber (1988)"""
+                                -Hans Gruber (1988)"""
 
     # Don't use real logging because we *always* want the user to see it
     print(gruber)
