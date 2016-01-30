@@ -15,5 +15,5 @@ env:
 after_success:
   - coveralls
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker tag antivoicemail_web atbaker/anti-voicemail
-  - docker push atbaker/anti-voicemail
+  - docker tag antivoicemail_web atbaker/anti-voicemail:latest
+  - docker push atbaker/anti-voicemail:latest

@@ -11,12 +11,12 @@
     "repository": "https://github.com/atbaker/anti-voicemail",
     "env": {
         "TWILIO_ACCOUNT_SID": {
-          "description": "Your Twilio account secret ID, you can find at: https://www.twilio.com/user/account",
+          "description": "Your Twilio account secret ID. Find it under 'Show API Credentials' at: https://www.twilio.com/user/account/voice",
           "value": "enter_your_account_sid_here",
           "required": true
         },
         "TWILIO_AUTH_TOKEN": {
-          "description": "Your secret Twilio Auth token, you can find at: https://www.twilio.com/user/account",
+          "description": "Your secret Twilio Auth token, Find it under 'Show API Credentials' at: https://www.twilio.com/user/account/voice",
           "value": "enter_your_auth_token_here",
           "required": true
         },
