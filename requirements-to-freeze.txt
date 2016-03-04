@@ -1,0 +1,25 @@
+# Primary requirements for anti-voicemail
+# Frozen requirements are in requirements-to-freeze.txt
+# Read more: http://www.kennethreitz.org/essays/a-better-pip-workflow
+
+# Flask
+Flask
+Flask-Bootstrap
+Flask-Migrate
+Flask-Script
+Flask-SQLAlchemy
+Flask-WTF
+
+# Third party libraries
+phonenumbers
+Pillow
+qrcode
+requests
+twilio
+
+# Production
+gunicorn
+psycopg2 # Only because Heroku's filesystem is ephemeral
+
+# Testing
+coverage
