@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/atbaker/anti-voicemail.svg?branch=master)](https://travis-ci.org/atbaker/anti-voicemail)
 [![Coverage Status](https://coveralls.io/repos/atbaker/anti-voicemail/badge.svg?branch=master&service=github)](https://coveralls.io/github/atbaker/anti-voicemail?branch=master)
-[![Requirements Status](https://requires.io/github/atbaker/anti-voicemail/requirements.svg?branch=master)](https://requires.io/github/atbaker/anti-voicemail/requirements/?branch=master)
 
 A voicemail app for people who really, really don't like receiving voicemails.
 
