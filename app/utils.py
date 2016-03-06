@@ -1,4 +1,4 @@
-from flask import current_app, render_template, url_for
+from flask import current_app, url_for
 from time import sleep
 from twilio.rest import TwilioRestClient
 from twilio.rest.exceptions import TwilioRestException
@@ -74,7 +74,8 @@ def set_twilio_number_urls():
     update_kwargs = {}
 
     # Set the URLs only if they're blank (don't override any existing config)
-    if not twilio_number.voice_url or 'demo.twilio.com' in twilio_number.voice_url:
+    if (not twilio_number.voice_url or
+            'demo.twilio.com' in twilio_number.voice_url):
         update_kwargs['voice_url'] = url_for(
             'voice.incoming_call', _external=True)
         update_kwargs['voice_method'] = 'POST'
@@ -107,7 +108,7 @@ def gruber_quote():  # pragma: no cover
     # Don't use real logging because we *always* want the user to see it
     print(gruber)
 
-import atexit
-import sys
+import atexit # flake8: noqa
+import sys # flake8: noqa
 if sys.argv[-1] == 'test':  # pragma: no cover
     atexit.register(gruber_quote)

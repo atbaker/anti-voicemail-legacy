@@ -1,0 +1,8 @@
+# Development requirements for anti-voicemail
+
+-r requirements.txt
+
+# Testing
+coverage
+pep8
+flake8

@@ -7,6 +7,18 @@ from ..models import Mailbox, Voicemail
 from ..utils import get_twilio_rest_client, look_up_number
 
 
+MISCONFIGURED = """This phone number cannot receive voicemails right now.
+                Goodbye"""
+UNABLE_TO_ANSWER = """{0} is unable to answer the phone. The best way to
+                   reach them is by text message or email."""
+SENDING_MESSAGE = """I am sending you a text message with {0}'s phone number,
+                  email address, and voicemail number. Thank you."""
+TEXT_EMAIL = """{0} will receive text messages you send to this number.
+                You can email them at {1}"""
+GATHER_CONFIRM = """If you would still like to leave {0} a voicemail,
+                 press 1"""
+
+
 @voice.route('/call', methods=['POST'])
 @validate_twilio_request
 def incoming_call(retry=False):
@@ -28,17 +40,14 @@ def incoming_call(retry=False):
 
     if mailbox is None or not mailbox.email:
         # This mailbox doesn't exist / isn't configured: end the call
-        resp.say(
-            'This phone number cannot receive voicemails right now. Goodbye',
-            voice='alice')
+        resp.say(MISCONFIGURED, voice='alice')
         return str(resp)
+
     elif caller in mailbox.whitelist:
         # If the caller is on our whitelist, send them to the record view
         return redirect(url_for('voice.record'))
 
-    resp.say('{0} is unable to answer the phone. The best way to \
-        reach them is by text message or email.'.format(mailbox.name),
-             voice='alice')
+    resp.say(UNABLE_TO_ANSWER.format(mailbox.name), voice='alice')
 
     # Look up what type of phone the caller is using
     caller_info = look_up_number(caller)
@@ -47,9 +56,7 @@ def incoming_call(retry=False):
     # with our user's contact info
     if caller_info and caller_info.carrier[
             'type'] == 'mobile' and caller_info.carrier['name']:
-        resp.say("I am sending you a text message with {0}'s phone number, \
-            email address, and voicemail number. Thank you.".format(mailbox.name),
-                 voice='alice')
+        resp.say(SENDING_MESSAGE.format(mailbox.name), voice='alice')
         if not retry:
             mailbox.send_contact_info(caller)
 
@@ -57,15 +64,12 @@ def incoming_call(retry=False):
         current_app.cache.set(caller, True, timeout=30 * 60)
         return str(resp)
 
-    contact_info = "{0} will receive text messages you send to this number. You can email them at {1}".format(
-        mailbox.name, mailbox.email)
-    resp.say(contact_info, voice='alice')
+    resp.say(TEXT_EMAIL.format(mailbox.name, mailbox.email), voice='alice')
 
     # Ask the caller if they *really* need to leave a voicemail
     resp.pause(length=1)
     with resp.gather(numDigits=1, action=url_for('voice.record')) as g:
-        g.say('If you would still like to leave {0} a voicemail, press 1'.format(mailbox.name),
-              voice='alice')
+        g.say(GATHER_CONFIRM.format(mailbox.name), voice='alice')
 
     # Hang up if they don't enter any digits
     resp.say('Thank you for calling. Goodbye.', voice='alice')
@@ -112,9 +116,9 @@ def hang_up():
 def send_notification():
     """Receives a transcribed voicemail from Twilio and sends an email"""
     # Create a new Voicemail from the POST data
-    voicemail = Voicemail(request.form['From'],
-                          request.form.get(
-        'TranscriptionText', '(transcription failed)'),
+    voicemail = Voicemail(
+        request.form['From'], request.form.get(
+            'TranscriptionText', '(transcription failed)'),
         request.form['RecordingSid'])
 
     voicemail.send_notification()
@@ -133,5 +137,5 @@ def view_recording(recording_sid):
     transcription = recording.transcriptions.list()[0].transcription_text
     call = client.calls.get(recording.call_sid)
 
-    return render_template(
-        'voice/recording.html', recording=recording, transcription=transcription, call=call)
+    return render_template('voice/recording.html', recording=recording,
+                           transcription=transcription, call=call)

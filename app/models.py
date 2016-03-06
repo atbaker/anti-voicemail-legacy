@@ -41,12 +41,13 @@ class Mailbox(db.Model):
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
     call_forwarding_set = db.Column(db.Boolean(), default=False)
-    feelings_on_qr_codes = db.Column(db.Enum('love', 'hate', name='qr_code_enum'))
+    feelings_on_qr_codes = db.Column(db.Enum('love', 'hate',
+                                             name='qr_code_enum'))
     whitelist = db.Column(db.PickleType())
 
     def __init__(self, phone_number, id=None, carrier=None, name=None,
-                 email=None, call_forwarding_set=None, feelings_on_qr_codes=None,
-                 whitelist=None):
+                 email=None, call_forwarding_set=None,
+                 feelings_on_qr_codes=None, whitelist=None):
         # Get the carrier if none was provided
         if carrier is None:
             # Look up the carrier
@@ -71,7 +72,9 @@ class Mailbox(db.Model):
         return '<Mailbox %r>' % self.phone_number
 
     def is_carrier_supported(self):
-        """Checks that the Mailbox's carrier is in our list of supported carriers"""
+        """
+        Checks that the Mailbox's carrier is in our list of supported carriers.
+        """
         return self.carrier in STAR_CODES
 
     def get_call_forwarding_code(self):
@@ -113,7 +116,7 @@ class Mailbox(db.Model):
             from_=current_app.config['TWILIO_PHONE_NUMBER']
         )
 
-        # If this call is the user trying out Anti-Voicemail for the first time,
+        # If this call is the user trying Anti-voicemail for the first time,
         # update the call_forwarding_set property and ask them about QR codes
         if from_user and not self.call_forwarding_set:
             self.call_forwarding_set = True
@@ -171,8 +174,9 @@ class Mailbox(db.Model):
         """
         try:
             # Read the QR code using api.qrserver.com
-            response = requests.get('https://api.qrserver.com/v1/read-qr-code/',
-                                    params={'fileurl': config_image_url})
+            response = requests.get(
+                'https://api.qrserver.com/v1/read-qr-code/',
+                params={'fileurl': config_image_url})
 
             # Get the QR data and convert it to bytes
             serialized = response.json()[0]['symbol'][0]['data']

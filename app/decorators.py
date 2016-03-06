@@ -19,8 +19,9 @@ def validate_twilio_request(f):
 
         # Continue processing the request if it's valid (or we're testing)
         # Otherwise, return a 403 error if it's not
-        if request_valid or (current_app.config['TESTING'] == True
-                             and not request.headers.get('FORCE_VALIDATION', False)):
+        if request_valid or (current_app.config['TESTING'] is True and
+                             not request.headers.get('FORCE_VALIDATION',
+                                                     False)):
             return f(*args, **kwargs)
         else:
             return abort(403)

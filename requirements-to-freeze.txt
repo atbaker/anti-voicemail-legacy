@@ -20,6 +20,3 @@ twilio
 # Production
 gunicorn
 psycopg2 # Only because Heroku's filesystem is ephemeral
-
-# Testing
-coverage

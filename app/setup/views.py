@@ -68,8 +68,8 @@ def incoming_message():
         if command in current_app.config['ANTI_VOICEMAIL_COMMANDS']:
             reply = _process_command(command, body, mailbox, from_number)
         else:
-            # Assume this message is an answer to a setup question and process it
-            # accordingly
+            # Assume this message is an answer to a setup question and process
+            # it accordingly
             reply = _process_answer(request.form['Body'], mailbox)
 
         resp.message(reply)
@@ -129,7 +129,9 @@ def _process_command(command, body, mailbox, from_number):
     else:
         # The only way this happens is if there's a mismatch between
         # the ANTI_VOICEMAIL_COMMANDS config setting and this method
-        reply = "Ooops! There's a mismatch between your ANTI_VOICEMAIL_COMMANDS config setting and your _process_command function. Better check that!"
+        reply = """Ooops! There's a mismatch between your
+                ANTI_VOICEMAIL_COMMANDS config setting and your
+                _process_command function. Better check that!"""
 
     return reply
 
@@ -170,8 +172,8 @@ def _process_answer(answer, mailbox):
             mailbox=mailbox)
 
     elif not mailbox.feelings_on_qr_codes:
-        # Most input will probably be something like yes/yeah/yea or no/nope/naw
-        # so we'll try taking the first character
+        # Most input will probably be something like yes/yeah/yea or
+        #  no/nope/naw so we'll try taking the first character
         answer = answer[0].lower()
 
         if answer == 'y':
