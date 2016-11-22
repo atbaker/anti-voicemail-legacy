@@ -5,6 +5,9 @@
 
 A voicemail app for people who really, really don't like receiving voicemails.
 
+**NOTE:** This project is not actively maintained, though I'm happy to talk about
+it if you're interested in using it.
+
 **Try it yourself:** Call the demo number at
 [+1 (202) 499-7699](tel:+12024997699). (Your phone number will not be recorded.)
 
